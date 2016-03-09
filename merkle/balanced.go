@@ -1,5 +1,7 @@
 package merkle
 
+import "fmt"
+
 // AppendLeaves Append Leaves to a balanced tree
 func (t *Tree) AppendLeaves(m []*Node) {
 	l := t.Root.Leaves(nil)
@@ -7,20 +9,16 @@ func (t *Tree) AppendLeaves(m []*Node) {
 	BuildTree(l)
 }
 
-// BuildTree comment
+// BuildTree for unbalanced trees with 2n leaves
 func BuildTree(l []*Node) []*Node {
-	// Odd number of nodes case
-	if len(l)%2 != 0 {
-		l = append(l, &Node{})
-	}
-	// Calculate the largest balanced subtree
 	var k uint
 	for n := 0; 1<<uint(n) <= len(l); n++ {
 		k = uint(n)
 	}
 	left := BuildSubTree(l[:1<<uint(k)])
 	// Calculate the unbalanced righthand side
-	if len(left) < len(l) {
+	if len(l[1<<uint(k):]) > 0 {
+		fmt.Println("SHOULDNT BE HERE")
 		right := l[1<<uint(k):]
 		for len(right) > 1 {
 			right = BuildTree(right)
@@ -32,22 +30,19 @@ func BuildTree(l []*Node) []*Node {
 
 // BuildSubTree for balanced trees with 2^n leaves
 func BuildSubTree(l []*Node) []*Node {
-	if !PowOf2(len(l)) {
-		return nil
+	if !PowOf2(len(l)) || len(l) == 1 {
+		return l
 	}
 	var parents []*Node
 	for n := 0; n < len(l); n += 2 {
-		if l[n+1].Parent == nil {
+		if l[n].Parent == nil {
 			p := &Node{L: l[n], R: l[n+1]}
 			l[n].Parent = p
 			l[n+1].Parent = p
 		}
-		parents = append(parents, l[n+1].Parent)
+		parents = append(parents, l[n].Parent)
 	}
-	if len(parents) > 1 {
-		return BuildSubTree(parents)
-	}
-	return parents
+	return BuildSubTree(parents)
 }
 
 // PowOf2 comment
