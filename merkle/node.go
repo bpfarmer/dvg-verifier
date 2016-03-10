@@ -93,3 +93,26 @@ func (n *Node) IsR() bool {
 func (n *Node) IsLeaf() bool {
 	return n.L == nil && n.R == nil
 }
+
+var leaves []*Node
+
+// Leaves comment
+func (n *Node) Leaves() []*Node {
+	leaves = []*Node{}
+	return n.leaves()
+}
+
+// Leaves comment
+func (n *Node) leaves() []*Node {
+	if n.IsLeaf() {
+		leaves = append(leaves, n)
+	} else {
+		if n.L != nil {
+			n.L.leaves()
+		}
+		if n.R != nil {
+			n.R.leaves()
+		}
+	}
+	return leaves
+}

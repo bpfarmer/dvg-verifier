@@ -19,18 +19,6 @@ func walkSave(n *Node, s *Store) {
 	}
 }
 
-// Leaves comment
-func (n *Node) Leaves(l []*Node) []*Node {
-	if n.R == nil && n.L == nil {
-		return append(l, n)
-	} else if n.L != nil {
-		l = append(l, n.L.Leaves(l)...)
-	} else if n.R != nil {
-		l = append(l, n.R.Leaves(l)...)
-	}
-	return l
-}
-
 // CountLeaves comment
 func (n *Node) CountLeaves() int {
 	if n == nil {

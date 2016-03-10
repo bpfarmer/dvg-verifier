@@ -14,14 +14,28 @@ func main() {
 	}
 	k := merkle.BuildTree(l)
 	walk(k[0])
+	fmt.Println(k[0].R)
+	var m []*merkle.Node
+	for n := 0; n < 2; n++ {
+		m = append(m, &merkle.Node{})
+	}
+	k = merkle.AppendLeaves(l, m)
+	walk(k[0])
+	fmt.Println(k[0].R)
+	fmt.Println(len(k[0].Leaves()))
+	fmt.Println(len(k[0].Leaves()))
 }
 
 func walk(n *merkle.Node) {
+	if n.IsLeaf() {
+		fmt.Println("LEAF")
+	}
 	if n.L != nil {
-		fmt.Println("Walkin' Left")
+		//fmt.Println("Walkin' Left")
 		walk(n.L)
-	} else if n.R != nil {
-		fmt.Println("Walkin' Right")
+	}
+	if n.R != nil {
+		//fmt.Println("Walkin' Right")
 		walk(n.R)
 	}
 }

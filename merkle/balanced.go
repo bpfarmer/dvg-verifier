@@ -1,12 +1,9 @@
 package merkle
 
-import "fmt"
-
 // AppendLeaves Append Leaves to a balanced tree
-func (t *Tree) AppendLeaves(m []*Node) {
-	l := t.Root.Leaves(nil)
+func AppendLeaves(l []*Node, m []*Node) []*Node {
 	l = append(l, m...)
-	BuildTree(l)
+	return BuildTree(l)
 }
 
 // BuildTree for unbalanced trees with 2n leaves
@@ -18,7 +15,6 @@ func BuildTree(l []*Node) []*Node {
 	left := BuildSubTree(l[:1<<uint(k)])
 	// Calculate the unbalanced righthand side
 	if len(l[1<<uint(k):]) > 0 {
-		fmt.Println("SHOULDNT BE HERE")
 		right := l[1<<uint(k):]
 		for len(right) > 1 {
 			right = BuildTree(right)
