@@ -10,6 +10,7 @@ type Node struct {
 	Parent, L, R *Node
 	LVal, RVal   []byte
 	Name, Val    []byte
+	H            []byte
 	Level, Epoch uint
 	// For DB purposes
 	ID, PID, LID, RID, TID int64
@@ -17,19 +18,32 @@ type Node struct {
 
 // HashVal comment
 func (n *Node) HashVal() []byte {
-	if !n.IsLeaf() {
-		if n.LVal == nil && n.L != nil {
-			n.LVal = n.L.HashVal()
-		}
-		if n.RVal == nil && n.R != nil {
-			n.RVal = n.R.HashVal()
-		}
-		sha256 := sha256.New()
-		sha256.Write(hashEmpty(n.LVal))
-		sha256.Write(hashEmpty(n.RVal))
-		return sha256.Sum(nil)
+	if n.H != nil {
+		return n.H
 	}
-	return n.Val
+	sha256 := sha256.New()
+	if n.Name != nil {
+		sha256.Write(n.Name)
+	}
+	if n.Val != nil {
+		sha256.Write(n.Val)
+	}
+	if n.LVal == nil && n.L != nil {
+		n.LVal = n.L.HashVal()
+		sha256.Write(hashEmpty(n.LVal))
+	}
+	if n.RVal == nil && n.R != nil {
+		n.RVal = n.R.HashVal()
+		sha256.Write(hashEmpty(n.RVal))
+	}
+	return sha256.Sum(nil)
+}
+
+// Reset comment
+func (n *Node) Reset() {
+	n.H = nil
+	n.LVal = nil
+	n.RVal = nil
 }
 
 // subHash comment

@@ -16,7 +16,7 @@ func main() {
 	walk(k[0])
 	fmt.Println(k[0].R)
 	var m []*merkle.Node
-	for n := 0; n < 2; n++ {
+	for n := 0; n < 16; n++ {
 		m = append(m, &merkle.Node{})
 	}
 	k = merkle.AppendLeaves(l, m)
@@ -27,14 +27,10 @@ func main() {
 }
 
 func walk(n *merkle.Node) {
-	if n.IsLeaf() {
-		fmt.Println("LEAF")
-	}
 	if n.L != nil {
-		//fmt.Println("Walkin' Left")
+		fmt.Println("Walkin' Left")
 		walk(n.L)
-	}
-	if n.R != nil {
+	} else if n.R != nil {
 		//fmt.Println("Walkin' Right")
 		walk(n.R)
 	}

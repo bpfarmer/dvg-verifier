@@ -8,20 +8,18 @@ func AppendLeaves(l []*Node, m []*Node) []*Node {
 
 // BuildTree for unbalanced trees with 2n leaves
 func BuildTree(l []*Node) []*Node {
+	if len(l) == 1 {
+		return l
+	}
 	var k uint
 	for n := 0; 1<<uint(n) <= len(l); n++ {
 		k = uint(n)
 	}
-	left := BuildSubTree(l[:1<<uint(k)])
-	// Calculate the unbalanced righthand side
+	sub := BuildSubTree(l[:1<<uint(k)])
 	if len(l[1<<uint(k):]) > 0 {
-		right := l[1<<uint(k):]
-		for len(right) > 1 {
-			right = BuildTree(right)
-		}
-		left = append(left, right...)
+		sub = append(sub, BuildTree(l[1<<uint(k):])...)
 	}
-	return BuildSubTree(left)
+	return BuildSubTree(sub)
 }
 
 // BuildSubTree for balanced trees with 2^n leaves
@@ -31,7 +29,7 @@ func BuildSubTree(l []*Node) []*Node {
 	}
 	var parents []*Node
 	for n := 0; n < len(l); n += 2 {
-		if l[n].Parent == nil {
+		if l[n+1].Parent == nil {
 			p := &Node{L: l[n], R: l[n+1]}
 			l[n].Parent = p
 			l[n+1].Parent = p
