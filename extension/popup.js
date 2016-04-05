@@ -1,5 +1,5 @@
 // Parse for PDFs and embedded PDFs
-PDFJS.workerSrc = 'pdf.worker.js';
+//PDFJS.workerSrc = 'pdf.worker.js';
 
 // Make XHR to receive binary data
 var xhr = new XMLHttpRequest();
@@ -8,10 +8,10 @@ xhr.onreadystatechange = function() {
         // Hash binary data
         var data = new Uint8Array(xhr.response || xhr.mozResponseArrayBuffer);
         console.log(data);
-        PDFJS.getDocument(data).then(function(pdf) {
-          console.log(pdf);
-        });
-        console.log(pdf)
+        //PDFJS.getDocument(data).then(function(pdf) {
+        //  console.log(pdf);
+        //});
+        //console.log(pdf)
         var shaObj = new jsSHA("SHA-256", "BYTES");
         shaObj.update(this.response);
         var hash = shaObj.getHash("HEX");
