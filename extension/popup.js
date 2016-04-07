@@ -8,6 +8,8 @@ xhr.onload = function(e) {
   console.log(data);
   var hash = sha256(data);
   console.log(hash);
+
+  
 }
 
 console.log($("embed").attr("src"));
