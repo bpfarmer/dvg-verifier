@@ -1,8 +1,6 @@
 // Parse for PDFs and embedded PDFs
-//PDFJS.workerSrc = 'pdf.worker.js';
 
-//PDFJS.workerSrc = "pdf.worker.js";
-// Make XHR to receive binary data
+// Get binary data
 
 var xhr = new XMLHttpRequest();
 xhr.onload = function(e) {
@@ -15,7 +13,13 @@ xhr.onload = function(e) {
 
   PDFJS.getDocument({data: data}).then(function(doc) {
     doc.getMetadata().then(function(metadata) {
-      console.log(metadata);
+      var origin = metadata.metadata.metadata["pdfx:verification_endpoint"];
+      xhr = new XMLHttpRequest();
+      xhr.onload = function(e) {
+        console.log(xhr.responseText);
+      }
+      xhr.open('GET', "http://localhost:4000/verify/".concat(origin).concat("/").concat(hash));
+      xhr.send();
     });
   });
 }
@@ -24,8 +28,6 @@ console.log($("embed").attr("src"));
 xhr.open('GET', $("embed").attr("src"), true);
 xhr.responseType = 'arraybuffer';
 xhr.send();
-
-// Use PDF.js or PDFium to parse metadata
 
 // Make request for proof of inclusion
 
