@@ -16,6 +16,7 @@
   ],
   "content_scripts": [{
     "matches": ["<all_urls>"],
-    "js": ["compatibility.js", "jquery.js", "require.js", "sha256.js", "pdf.worker.js", "pdf.js", "popup.js"]
-  }]
+    "js": ["pdf.js", "pdf.worker.js", "require.js", "require.content.js", "jquery.js", "sha256.js", "popup.js"]
+  }],
+  "web_accessible_resources": ["pdf.worker.js"]
 }

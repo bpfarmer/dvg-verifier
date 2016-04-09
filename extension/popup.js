@@ -1,9 +1,8 @@
 // Parse for PDFs and embedded PDFs
 //PDFJS.workerSrc = 'pdf.worker.js';
 
+//PDFJS.workerSrc = "pdf.worker.js";
 // Make XHR to receive binary data
-PDFJS.workerSrc = require(["pdf.worker.js"]);
-//PDFJS.disableWorker = true;
 
 var xhr = new XMLHttpRequest();
 xhr.onload = function(e) {
@@ -12,17 +11,21 @@ xhr.onload = function(e) {
   var hash = sha256(data);
   console.log(hash);
 
+  PDFJS.workerSrc = "pdf.worker.js";
+  //PDFJS.disableWorker = true;
+
   PDFJS.getDocument({data: data}).then(function (pdfDoc_) {
-      pdfDoc = pdfDoc_;
-      pdfDoc.getMetadata().then(function(stuff) {
-          console.log(stuff);
-      }).catch(function(err) {
-         console.log('Error getting meta data');
-         console.log(err);
-      });
+    console.log("HERE")
+    pdfDoc = pdfDoc_;
+    pdfDoc.getMetadata().then(function(stuff) {
+        console.log(stuff);
+    }).catch(function(err) {
+       console.log('Error getting meta data');
+       console.log(err);
+    });
   }).catch(function(err) {
-      console.log('Error getting PDF from ' + url);
-      console.log(err);
+    console.log('Error getting PDF from ' + url);
+    console.log(err);
   });
 }
 

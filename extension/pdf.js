@@ -613,7 +613,6 @@ function isLittleEndian() {
   return (buffer16[0] === 1);
 }
 
-//#if !(FIREFOX || MOZCENTRAL || CHROME)
 var Uint32ArrayView = (function Uint32ArrayViewClosure() {
 
   function Uint32ArrayView(buffer, length) {
@@ -655,7 +654,6 @@ var Uint32ArrayView = (function Uint32ArrayViewClosure() {
 })();
 
 exports.Uint32ArrayView = Uint32ArrayView;
-//#endif
 
 var IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
 
@@ -901,7 +899,7 @@ var Util = (function UtilClosure() {
         loaded = true;
       };
     }
-    document.getElementsByTagName('head')[0].appendChild(script);
+    //document.getElementsByTagName('head')[0].appendChild(script);
   };
 
   return Util;
@@ -1191,7 +1189,6 @@ function createPromiseCapability() {
     }
     return;
   }
-//#if !MOZCENTRAL
   var STATUS_PENDING = 0;
   var STATUS_RESOLVED = 1;
   var STATUS_REJECTED = 2;
@@ -1451,9 +1448,6 @@ function createPromiseCapability() {
   };
 
   globalScope.Promise = Promise;
-//#else
-//throw new Error('DOM Promise is not present');
-//#endif
 })();
 
 var StatTimer = (function StatTimerClosure() {
@@ -1698,8 +1692,7 @@ function loadJpegStream(id, imageUrl, objs) {
   img.src = imageUrl;
 }
 
-//#if !(MOZCENTRAL)
-//// Polyfill from https://github.com/Polymer/URL
+  // Polyfill from https://github.com/Polymer/URL
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 (function checkURLConstructor(scope) {
@@ -2317,7 +2310,6 @@ function loadJpegStream(id, imageUrl, objs) {
   scope.URL = jURL;
   /* jshint ignore:end */
 })(globalScope);
-//#endif
 
 exports.FONT_IDENTITY_MATRIX = FONT_IDENTITY_MATRIX;
 exports.IDENTITY_MATRIX = IDENTITY_MATRIX;
@@ -2526,8 +2518,7 @@ var CustomStyle = (function CustomStyleClosure() {
 
 PDFJS.CustomStyle = CustomStyle;
 
-//#if !(FIREFOX || MOZCENTRAL || CHROME)
-//// Lazy test if the userAgent support CanvasTypedArrays
+  // Lazy test if the userAgent support CanvasTypedArrays
 function hasCanvasTypedArrays() {
   var canvas = document.createElement('canvas');
   canvas.width = canvas.height = 1;
@@ -2542,9 +2533,6 @@ Object.defineProperty(PDFJS, 'hasCanvasTypedArrays', {
     return shadow(PDFJS, 'hasCanvasTypedArrays', hasCanvasTypedArrays());
   }
 });
-//#else
-//PDFJS.hasCanvasTypedArrays = true;
-//#endif
 
 var LinkTarget = {
   NONE: 0, // Default value.
@@ -2565,7 +2553,6 @@ var LinkTargetStringMap = [
 ];
 
 function isExternalLinkTargetSet() {
-//#if !MOZCENTRAL
   if (PDFJS.openExternalLinksInNewWindow) {
     deprecated('PDFJS.openExternalLinksInNewWindow, please use ' +
       '"PDFJS.externalLinkTarget = PDFJS.LinkTarget.BLANK" instead.');
@@ -2575,7 +2562,6 @@ function isExternalLinkTargetSet() {
     // Reset the deprecated parameter, to suppress further warnings.
     PDFJS.openExternalLinksInNewWindow = false;
   }
-//#endif
   switch (PDFJS.externalLinkTarget) {
     case LinkTarget.NONE:
       return false;
@@ -2651,14 +2637,12 @@ var isWorker = displayGlobal.isWorker;
 function FontLoader(docId) {
   this.docId = docId;
   this.styleElement = null;
-//#if !(MOZCENTRAL)
   this.nativeFontFaces = [];
   this.loadTestFontId = 0;
   this.loadingContext = {
     requests: [],
     nextRequestId: 0
   };
-//#endif
 }
 FontLoader.prototype = {
   insertRule: function fontLoaderInsertRule(rule) {
@@ -2680,14 +2664,11 @@ FontLoader.prototype = {
       styleElement.parentNode.removeChild(styleElement);
       styleElement = this.styleElement = null;
     }
-//#if !(MOZCENTRAL)
     this.nativeFontFaces.forEach(function(nativeFontFace) {
       document.fonts.delete(nativeFontFace);
     });
     this.nativeFontFaces.length = 0;
-//#endif
   },
-//#if !(MOZCENTRAL)
   get loadTestFont() {
     // This is a CFF font with 1 glyph for '.' that fills its entire width and
     // height.
@@ -2899,32 +2880,9 @@ FontLoader.prototype = {
       });
       /** Hack end */
   }
-//#else
-//bind: function fontLoaderBind(fonts, callback) {
-//  assert(!isWorker, 'bind() shall be called from main thread');
-//
-//  for (var i = 0, ii = fonts.length; i < ii; i++) {
-//    var font = fonts[i];
-//    if (font.attached) {
-//      continue;
-//    }
-//
-//    font.attached = true;
-//    var rule = font.createFontFaceRule();
-//    if (rule) {
-//      this.insertRule(rule);
-//    }
-//  }
-//
-//  setTimeout(callback);
-//}
-//#endif
 };
-//#if !(MOZCENTRAL)
 FontLoader.isFontLoadingAPISupported = (!isWorker &&
   typeof document !== 'undefined' && !!document.fonts);
-//#endif
-//#if !(MOZCENTRAL || CHROME)
 Object.defineProperty(FontLoader, 'isSyncFontLoadingSupported', {
   get: function () {
     var supported = false;
@@ -2945,7 +2903,6 @@ Object.defineProperty(FontLoader, 'isSyncFontLoadingSupported', {
   enumerable: true,
   configurable: true
 });
-//#endif
 
 var FontFaceObject = (function FontFaceObjectClosure() {
   function FontFaceObject(translatedData) {
@@ -2971,7 +2928,6 @@ var FontFaceObject = (function FontFaceObjectClosure() {
     configurable: true
   });
   FontFaceObject.prototype = {
-//#if !(MOZCENTRAL)
     createNativeFontFace: function FontFaceObject_createNativeFontFace() {
       if (!this.data) {
         return null;
@@ -2990,7 +2946,6 @@ var FontFaceObject = (function FontFaceObjectClosure() {
       }
       return nativeFontFace;
     },
-//#endif
 
     createFontFaceRule: function FontFaceObject_createFontFaceRule() {
       if (!this.data) {
@@ -3161,7 +3116,6 @@ exports.Metadata = Metadata;
 }));
 
 
-//#if (GENERIC || SINGLE_FILE)
 (function (root, factory) {
   {
     factory((root.pdfjsDisplaySVG = {}), root.pdfjsSharedUtil,
@@ -4353,7 +4307,6 @@ PDFJS.SVGGraphics = SVGGraphics;
 
 exports.SVGGraphics = SVGGraphics;
 }));
-//#endif
 
 
 (function (root, factory) {
@@ -6205,9 +6158,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
     }
 
     var canvas = document.createElement('canvas');
-//#if MOZCENTRAL || FIREFOX || GENERIC
     canvas.mozOpaque = true;
-//#endif
     var ctx = canvas.getContext('2d', {alpha: false});
 
     var lastFontSize;
@@ -8588,13 +8539,35 @@ var globalScope = displayGlobal.globalScope;
 
 var DEFAULT_RANGE_CHUNK_SIZE = 65536; // 2^16 = 65536
 
-//#if PRODUCTION && !SINGLE_FILE
-//#if GENERIC
-//#include ../src/frameworks.js
-//#else
-//var fakeWorkerFilesLoader = null;
-//#endif
-//#endif
+
+var useRequireEnsure = false;
+if (typeof module !== 'undefined' && module.require) {
+  // node.js - disable worker and set require.ensure.
+  PDFJS.disableWorker = true;
+  if (typeof require.ensure === 'undefined') {
+    require.ensure = require('node-ensure');
+  }
+  useRequireEnsure = true;
+}
+if (typeof __webpack_require__ !== 'undefined') {
+  // Webpack - get/bundle pdf.worker.js as additional file.
+  PDFJS.workerSrc = require('entry?name=[hash]-worker.js!./pdf.worker.js');
+  useRequireEnsure = true;
+}
+if (typeof requirejs !== 'undefined' && requirejs.toUrl) {
+  PDFJS.workerSrc = requirejs.toUrl('pdfjs-dist/build/pdf.worker.js');
+}
+var fakeWorkerFilesLoader = useRequireEnsure ? (function (callback) {
+  require.ensure([], function () {
+    var worker = require('./pdf.worker.js');
+    callback(worker.WorkerMessageHandler);
+  });
+}) : (typeof requirejs !== 'undefined') ? (function (callback) {
+  requirejs(['pdfjs-dist/build/pdf.worker'], function (worker) {
+    callback(worker.WorkerMessageHandler);
+  });
+}) : null;
+
 
 /**
  * The maximum allowed image size in total pixels e.g. width * height. Images
@@ -8874,8 +8847,8 @@ PDFJS.getDocument = function getDocument(src,
     if (!src.url && !src.data && !src.range) {
       error('Invalid parameter object: need either .data, .range or .url');
     }
-
     source = src;
+    console.log(source);
   }
 
   var params = {};
@@ -8919,7 +8892,21 @@ PDFJS.getDocument = function getDocument(src,
     task._worker = worker;
   }
   var docId = task.docId;
+  console.log(worker);
+  _fetchDocument(worker, params, rangeTransport, docId).then(
+      function (workerId) {
+        console.log("fetched document callback");
+    if (task.destroyed) {
+      throw new Error('Loading aborted');
+    }
+    var messageHandler = new MessageHandler(docId, workerId, worker.port);
+    var transport = new WorkerTransport(messageHandler, task, rangeTransport);
+    task._transport = transport;
+    messageHandler.send('Ready', null);
+  });
+
   worker.promise.then(function () {
+    console.log("here inside the promise");
     if (task.destroyed) {
       throw new Error('Loading aborted');
     }
@@ -8949,6 +8936,7 @@ PDFJS.getDocument = function getDocument(src,
  * @private
  */
 function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
+  console.log("here fetching document");
   if (worker.destroyed) {
     return Promise.reject(new Error('Worker was destroyed'));
   }
@@ -8960,6 +8948,8 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
     source.length = pdfDataRangeTransport.length;
     source.initialData = pdfDataRangeTransport.initialData;
   }
+  console.log("WORKER DOWN BELOW");
+  console.log(worker);
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId: docId,
     source: source,
@@ -9719,11 +9709,9 @@ var PDFWorker = (function PDFWorkerClosure() {
     if (PDFJS.workerSrc) {
       return PDFJS.workerSrc;
     }
-//#if PRODUCTION && !(MOZCENTRAL || FIREFOX)
-//  if (pdfjsFilePath) {
-//    return pdfjsFilePath.replace(/\.js$/i, '.worker.js');
-//  }
-//#endif
+    if (pdfjsFilePath) {
+      return pdfjsFilePath.replace(/\.js$/i, '.worker.js');
+    }
     error('No PDFJS.workerSrc specified');
   }
 
@@ -9737,33 +9725,12 @@ var PDFWorker = (function PDFWorkerClosure() {
       // In the developer build load worker_loader which in turn loads all the
       // other files and resolves the promise. In production only the
       // pdf.worker.js file is needed.
-//#if !PRODUCTION
-      if (typeof amdRequire === 'function') {
-        amdRequire(['pdfjs/core/network', 'pdfjs/core/worker'],
-            function (network, worker) {
-          WorkerMessageHandler = worker.WorkerMessageHandler;
-          fakeWorkerFilesLoadedCapability.resolve(WorkerMessageHandler);
+      var loader = fakeWorkerFilesLoader || function (callback) {
+        Util.loadScript(getWorkerSrc(), function () {
+          callback(window.pdfjsDistBuildPdfWorker.WorkerMessageHandler);
         });
-      } else if (typeof require === 'function') {
-        var worker = require('../core/worker.js');
-        WorkerMessageHandler = worker.WorkerMessageHandler;
-        fakeWorkerFilesLoadedCapability.resolve(WorkerMessageHandler);
-      } else {
-        throw new Error('AMD or CommonJS must be used to load fake worker.');
-      }
-//#endif
-//#if PRODUCTION && SINGLE_FILE
-//    WorkerMessageHandler = pdfjsLibs.pdfjsCoreWorker.WorkerMessageHandler;
-//    fakeWorkerFilesLoadedCapability.resolve(WorkerMessageHandler);
-//#endif
-//#if PRODUCTION && !SINGLE_FILE
-//    var loader = fakeWorkerFilesLoader || function (callback) {
-//      Util.loadScript(getWorkerSrc(), function () {
-//        callback(window.pdfjsDistBuildPdfWorker.WorkerMessageHandler);
-//      });
-//    };
-//    loader(fakeWorkerFilesLoadedCapability.resolve);
-//#endif
+      };
+      loader(fakeWorkerFilesLoadedCapability.resolve);
     }
     return fakeWorkerFilesLoadedCapability.promise;
   }
@@ -9806,19 +9773,16 @@ var PDFWorker = (function PDFWorkerClosure() {
       // all requirements to run parts of pdf.js in a web worker.
       // Right now, the requirement is, that an Uint8Array is still an
       // Uint8Array as it arrives on the worker. (Chrome added this with v.15.)
-//#if !SINGLE_FILE
       if (!globalScope.PDFJS.disableWorker && typeof Worker !== 'undefined') {
         var workerSrc = getWorkerSrc();
 
         try {
-//#if GENERIC
-//        // Wraps workerSrc path into blob URL, if the former does not belong
-//        // to the same origin.
-//        if (!isSameOrigin(window.location.href, workerSrc)) {
-//          workerSrc = createCDNWrapper(
-//            combineUrl(window.location.href, workerSrc));
-//        }
-//#endif
+          // Wraps workerSrc path into blob URL, if the former does not belong
+          // to the same origin.
+          if (!isSameOrigin(window.location.href, workerSrc)) {
+            workerSrc = createCDNWrapper(
+              combineUrl(window.location.href, workerSrc));
+          }
           // Some versions of FF can't create a worker on localhost, see:
           // https://bugzilla.mozilla.org/show_bug.cgi?id=683280
           var worker = new Worker(workerSrc);
@@ -9916,7 +9880,6 @@ var PDFWorker = (function PDFWorkerClosure() {
           info('The worker has been disabled.');
         }
       }
-//#endif
       // Either workers are disabled, not supported or have thrown an exception.
       // Thus, we fallback to a faked worker.
       this._setupFakeWorker();
@@ -10755,4 +10718,3 @@ exports.PDFPageProxy = PDFPageProxy;
   exports.UnexpectedResponseException =
     pdfjsLibs.pdfjsSharedUtil.UnexpectedResponseException;
 }));
-

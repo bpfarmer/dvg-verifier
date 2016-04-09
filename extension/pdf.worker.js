@@ -2634,7 +2634,6 @@ function isLittleEndian() {
   return (buffer16[0] === 1);
 }
 
-//#if !(FIREFOX || MOZCENTRAL || CHROME)
 var Uint32ArrayView = (function Uint32ArrayViewClosure() {
 
   function Uint32ArrayView(buffer, length) {
@@ -2676,7 +2675,6 @@ var Uint32ArrayView = (function Uint32ArrayViewClosure() {
 })();
 
 exports.Uint32ArrayView = Uint32ArrayView;
-//#endif
 
 var IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
 
@@ -3212,7 +3210,6 @@ function createPromiseCapability() {
     }
     return;
   }
-//#if !MOZCENTRAL
   var STATUS_PENDING = 0;
   var STATUS_RESOLVED = 1;
   var STATUS_REJECTED = 2;
@@ -3472,9 +3469,6 @@ function createPromiseCapability() {
   };
 
   globalScope.Promise = Promise;
-//#else
-//throw new Error('DOM Promise is not present');
-//#endif
 })();
 
 var StatTimer = (function StatTimerClosure() {
@@ -3719,8 +3713,7 @@ function loadJpegStream(id, imageUrl, objs) {
   img.src = imageUrl;
 }
 
-//#if !(MOZCENTRAL)
-//// Polyfill from https://github.com/Polymer/URL
+  // Polyfill from https://github.com/Polymer/URL
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 (function checkURLConstructor(scope) {
@@ -4338,7 +4331,6 @@ function loadJpegStream(id, imageUrl, objs) {
   scope.URL = jURL;
   /* jshint ignore:end */
 })(globalScope);
-//#endif
 
 exports.FONT_IDENTITY_MATRIX = FONT_IDENTITY_MATRIX;
 exports.IDENTITY_MATRIX = IDENTITY_MATRIX;
@@ -17291,14 +17283,12 @@ var MurmurHash3_64 = (function MurmurHash3_64Closure (seed) {
   }
 
   var alwaysUseUint32ArrayView = false;
-//#if !(FIREFOX || MOZCENTRAL || CHROME)
   // old webkits have issues with non-aligned arrays
   try {
     new Uint32Array(new Uint8Array(5).buffer, 0, 1);
   } catch (e) {
     alwaysUseUint32ArrayView = true;
   }
-//#endif
 
   MurmurHash3_64.prototype = {
     update: function MurmurHash3_64_update(input) {
@@ -41692,135 +41682,6 @@ var WorkerTask = (function WorkerTaskClosure() {
   return WorkerTask;
 })();
 
-//#if !PRODUCTION
-/**
- * Interface that represents PDF data transport. If possible, it allows
- * progressively load entire or fragment of the PDF binary data.
- *
- * @interface
- * */
-function IPDFStream() {}
-IPDFStream.prototype = {
-  /**
-   * Gets a reader for the entire PDF data.
-   * @returns {IPDFStreamReader}
-   */
-  getFullReader: function () { return null; },
-
-  /**
-   * Gets a reader for the range of the PDF data.
-   * @param {number} begin - the start offset of the data.
-   * @param {number} end - the end offset of the data.
-   * @returns {IPDFStreamRangeReader}
-   */
-  getRangeReader: function (begin, end) { return null; },
-
-  /**
-   * Cancels all opened reader and closes all their opened requests.
-   * @param {Object} reason - the reason for cancelling
-   */
-  cancelAllRequests: function (reason) {},
-};
-
-/**
- * Interface for a PDF binary data reader.
- *
- * @interface
- */
-function IPDFStreamReader() {}
-IPDFStreamReader.prototype = {
-  /**
-   * Gets a promise that is resolved when the headers and other metadata of
-   * the PDF data stream are available.
-   * @returns {Promise}
-   */
-  get headersReady() { return null; },
-
-  /**
-   * Gets PDF binary data length. It is defined after the headersReady promise
-   * is resolved.
-   * @returns {number} The data length (or 0 if unknown).
-   */
-  get contentLength() { return 0; },
-
-  /**
-   * Gets ability of the stream to handle range requests. It is defined after
-   * the headersReady promise is resolved. Rejected when the reader is cancelled
-   * or an error occurs.
-   * @returns {boolean}
-   */
-  get isRangeSupported() { return false; },
-
-  /**
-   * Gets ability of the stream to progressively load binary data. It is defined
-   * after the headersReady promise is resolved.
-   * @returns {boolean}
-   */
-  get isStreamingSupported() { return false; },
-
-  /**
-   * Requests a chunk of the binary data. The method returns the promise, which
-   * is resolved into object with properties "value" and "done". If the done
-   * is set to true, then the stream has reached its end, otherwise the value
-   * contains binary data. Cancelled requests will be resolved with the done is
-   * set to true.
-   * @returns {Promise}
-   */
-  read: function () {},
-
-  /**
-   * Cancels all pending read requests and closes the stream.
-   * @param {Object} reason
-   */
-  cancel: function (reason) {},
-
-  /**
-   * Sets or gets the progress callback. The callback can be useful when the
-   * isStreamingSupported property of the object is defined as false.
-   * The callback is called with one parameter: an object with the loaded and
-   * total properties.
-   */
-  onProgress: null,
-};
-
-/**
- * Interface for a PDF binary data fragment reader.
- *
- * @interface
- */
-function IPDFStreamRangeReader() {}
-IPDFStreamRangeReader.prototype = {
-  /**
-   * Gets ability of the stream to progressively load binary data.
-   * @returns {boolean}
-   */
-  get isStreamingSupported() { return false; },
-
-  /**
-   * Requests a chunk of the binary data. The method returns the promise, which
-   * is resolved into object with properties "value" and "done". If the done
-   * is set to true, then the stream has reached its end, otherwise the value
-   * contains binary data. Cancelled requests will be resolved with the done is
-   * set to true.
-   * @returns {Promise}
-   */
-  read: function () {},
-
-  /**
-   * Cancels all pending read requests and closes the stream.
-   * @param {Object} reason
-   */
-  cancel: function (reason) {},
-
-  /**
-   * Sets or gets the progress callback. The callback can be useful when the
-   * isStreamingSupported property of the object is defined as false.
-   * The callback is called with one parameter: an object with the loaded
-   * property.
-   */
-  onProgress: null,
-};
-//#endif
 
 /** @implements {IPDFStream} */
 var PDFWorkerStream = (function PDFWorkerStreamClosure() {
@@ -42559,7 +42420,6 @@ var WorkerMessageHandler = {
 };
 
 function initializeWorker() {
-//#if !MOZCENTRAL
   if (!('console' in globalScope)) {
     var consoleTimer = {};
 
@@ -42598,7 +42458,6 @@ function initializeWorker() {
 
     globalScope.console = workerConsole;
   }
-//#endif
 
   var handler = new MessageHandler('worker', 'main', self);
   WorkerMessageHandler.setup(handler, self);
@@ -42618,21 +42477,6 @@ exports.WorkerMessageHandler = WorkerMessageHandler;
 
 
 
-//#if (FIREFOX || MOZCENTRAL)
-//
-//Components.utils.import('resource://gre/modules/Services.jsm');
-//
-//var EXPORTED_SYMBOLS = ['NetworkManager'];
-//
-//var console = {
-//  log: function console_log(aMsg) {
-//    var msg = 'network.js: ' + (aMsg.join ? aMsg.join('') : aMsg);
-//    Services.console.logStringMessage(msg);
-//    // TODO(mack): dump() doesn't seem to work here...
-//    dump(msg + '\n');
-//  }
-//}
-//#endif
 
 var NetworkManager = (function NetworkManagerClosure() {
 
@@ -42668,7 +42512,6 @@ var NetworkManager = (function NetworkManagerClosure() {
     return array.buffer;
   }
 
-//#if !(CHROME || FIREFOX || MOZCENTRAL)
   var supportsMozChunked = (function supportsMozChunkedClosure() {
     try {
       var x = new XMLHttpRequest();
@@ -42685,7 +42528,6 @@ var NetworkManager = (function NetworkManagerClosure() {
       return false;
     }
   })();
-//#endif
 
   NetworkManager.prototype = {
     requestRange: function NetworkManager_requestRange(begin, end, listeners) {
@@ -42727,15 +42569,7 @@ var NetworkManager = (function NetworkManagerClosure() {
         pendingRequest.expectedStatus = 200;
       }
 
-//#if CHROME
-//    var useMozChunkedLoading = false;
-//#endif
-//#if (FIREFOX || MOZCENTRAL)
-//    var useMozChunkedLoading = !!args.onProgressiveData;
-//#endif
-//#if !(CHROME || FIREFOX || MOZCENTRAL)
       var useMozChunkedLoading = supportsMozChunked && !!args.onProgressiveData;
-//#endif
       if (useMozChunkedLoading) {
         xhr.responseType = 'moz-chunked-arraybuffer';
         pendingRequest.onProgressiveData = args.onProgressiveData;
@@ -42891,7 +42725,6 @@ var NetworkManager = (function NetworkManagerClosure() {
   return NetworkManager;
 })();
 
-//#if !(FIREFOX || MOZCENTRAL)
 (function (root, factory) {
   {
     factory((root.pdfjsCoreNetwork = {}), root.pdfjsSharedUtil,
@@ -43232,11 +43065,9 @@ var NetworkManager = (function NetworkManagerClosure() {
   exports.PDFNetworkStream = PDFNetworkStream;
   exports.NetworkManager = NetworkManager;
 }));
-//#endif
 
 
   }).call(pdfjsLibs);
 
   exports.WorkerMessageHandler = pdfjsLibs.pdfjsCoreWorker.WorkerMessageHandler;
 }));
-
