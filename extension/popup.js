@@ -14,7 +14,9 @@ xhr.onload = function(e) {
   PDFJS.disableWorker = true;
 
   PDFJS.getDocument({data: data}).then(function(doc) {
-    console.log(doc.pdfInfo.metadata);
+    doc.getMetadata().then(function(metadata) {
+      console.log(metadata);
+    });
   });
 }
 
