@@ -11,21 +11,10 @@ xhr.onload = function(e) {
   var hash = sha256(data);
   console.log(hash);
 
-  PDFJS.workerSrc = "pdf.worker.js";
-  //PDFJS.disableWorker = true;
+  PDFJS.disableWorker = true;
 
-  PDFJS.getDocument({data: data}).then(function (pdfDoc_) {
-    console.log("HERE")
-    pdfDoc = pdfDoc_;
-    pdfDoc.getMetadata().then(function(stuff) {
-        console.log(stuff);
-    }).catch(function(err) {
-       console.log('Error getting meta data');
-       console.log(err);
-    });
-  }).catch(function(err) {
-    console.log('Error getting PDF from ' + url);
-    console.log(err);
+  PDFJS.getDocument({data: data}).then(function(doc) {
+    console.log(doc.pdfInfo.metadata);
   });
 }
 
