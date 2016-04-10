@@ -3,6 +3,8 @@ package merkle
 import (
 	"bytes"
 	"crypto/sha256"
+	"log"
+	"strings"
 )
 
 // Node comment
@@ -10,17 +12,14 @@ type Node struct {
 	Parent, L, R *Node
 	LVal, RVal   []byte
 	Name, Val    []byte
-	H            []byte
 	Level, Epoch uint
+	Path         string
 	// For DB purposes
 	ID, PID, LID, RID, TID int64
 }
 
 // HashVal comment
 func (n *Node) HashVal() []byte {
-	if n.H != nil {
-		return n.H
-	}
 	sha256 := sha256.New()
 	if n.Name != nil {
 		sha256.Write(n.Name)
@@ -41,7 +40,6 @@ func (n *Node) HashVal() []byte {
 
 // Reset comment
 func (n *Node) Reset() {
-	n.H = nil
 	n.LVal = nil
 	n.RVal = nil
 }
@@ -129,4 +127,42 @@ func (n *Node) leaves() []*Node {
 		}
 	}
 	return leaves
+}
+
+// Find comment
+func (n *Node) Find(s *Store, val string) *Node {
+	q := "select * from nodes where val = ?"
+	rows, err := s.DB.Query(q, val)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return MapToNodes(rows)[0]
+}
+
+// SetParent comment
+func (n *Node) SetParent(p *Node) {
+	n.Parent = p
+	n.Path = p.Path + "/" + string(p.ID)
+}
+
+// FindPath comment
+func (n *Node) FindPath(s *Store, val string) []*Node {
+	ids := strings.Split(n.Path, "/")
+	q := "select * from nodes where id in ?"
+	rows, err := s.DB.Query(q, ids)
+	if err != nil {
+		log.Fatal(err)
+	}
+	nodes := MapToNodes(rows)
+	nodes = append(nodes, n)
+	AssocNodes(nodes)
+	OrderNodes(nodes)
+	return nodes
+}
+
+// OrderNodes comment
+func OrderNodes(nodes []*Node) []*Node {
+	for _, n in range nodes {
+		
+	}
 }

@@ -21,13 +21,13 @@ func (n *Node) InsertBelow(p *Node) *Node {
 	if n.Name[(p.Level)/8]&(1<<(7-((p.Level)%8))) != 0 {
 		if p.R == nil {
 			p.R = n
-			n.Parent = p
+			n.SetParent(p)
 		}
 		return p.R
 	}
 	if p.L == nil {
 		p.L = n
-		n.Parent = p
+		n.SetParent(p)
 	}
 	return p.L
 }
