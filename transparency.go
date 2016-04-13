@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
@@ -14,10 +15,13 @@ import (
 	"strings"
 	"transparency/merkle"
 
+	"github.com/agl/ed25519"
 	_ "github.com/lib/pq"
 )
 
 var store *merkle.Store
+var pub *[32]byte
+var priv *[64]byte
 
 // /verify/stanford.edu/asdfasdf9as8d7f0as98df7as
 func verifyReq(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +37,14 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 			n.FindPath(store)
 			res["root_hash"] = []string{n.RootHash()}
 			res["inclusion_proof"] = n.InclusionProof()
+			res["public_key"] = []string{hex.EncodeToString(pub[:])}
+			r, err := hex.DecodeString(n.RootHash())
+			if err != nil {
+				log.Fatal(err)
+			}
+			s := ed25519.Sign(priv, r)[:]
+			fmt.Println(s)
+			res["signature"] = []string{hex.EncodeToString(s)}
 		}
 	}
 	js, err := json.Marshal(res)
@@ -52,6 +64,9 @@ func main() {
 	store = &merkle.Store{DB: db}
 	store.DropTables()
 	store.AddTables()
+	pub, priv, err = ed25519.GenerateKey(rand.Reader)
+	fmt.Println(pub)
+	fmt.Println(priv)
 	leaves := loadLeaves()
 	fmt.Println(len(leaves))
 	leaves = merkle.BuildTree(leaves)
@@ -72,13 +87,9 @@ func save(n *merkle.Node) {
 func walk(n *merkle.Node) {
 	n.Save(store)
 	if n.L != nil {
-		//fmt.Println("Left")
-		//fmt.Println(n.L.ID)
 		walk(n.L)
 	}
 	if n.R != nil {
-		//fmt.Println("Right")
-		//fmt.Println(n.R.ID)
 		walk(n.R)
 	} else {
 		fmt.Println(n.InclusionProof())
