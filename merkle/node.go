@@ -54,32 +54,39 @@ func hashEmpty(subHash string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// SibVal val
-func (n *Node) SibVal() string {
-	if n.Sib() != nil {
-		return n.Sib().HashVal()
-	}
-	return hashEmpty("")
-}
-
 // InclusionProof comment
 func (n *Node) InclusionProof() []string {
 	var p []string
-	curNode := n
-	for curNode.Parent != nil {
-		p = append(p, curNode.SibVal()+"_"+curNode.Dir())
-		curNode = curNode.Parent
+	c := n
+	fmt.Println("--INCLUSION PROOF--")
+	fmt.Println(c.Val)
+	for c.Parent != nil {
+		if c.Parent.LVal == c.HashVal() {
+			p = append(p, c.Parent.RVal+"_R")
+		} else {
+			p = append(p, c.Parent.LVal+"_L")
+		}
+		c = c.Parent
 	}
 	return p
+}
+
+// RootHash comment
+func (n *Node) RootHash() string {
+	c := n
+	for c.Parent != nil {
+		c = c.Parent
+	}
+	return c.HashVal()
 }
 
 // Sib comment
 func (n *Node) Sib() *Node {
 	if n.Parent != nil {
 		if n.IsR() {
-			return n.Parent.R
+			return n.Parent.L
 		}
-		return n.Parent.L
+		return n.Parent.R
 	}
 	return nil
 }
@@ -137,8 +144,8 @@ func (n *Node) leaves() []*Node {
 	return leaves
 }
 
-// FindNode comment
-func FindNode(s *Store, val string) *Node {
+// FindLeaf comment
+func FindLeaf(s *Store, val string) *Node {
 	q := "select * from nodes where val = $1"
 	rows, err := s.DB.Query(q, val)
 	if err != nil {
@@ -160,14 +167,8 @@ func (n *Node) Addr() string {
 func (n *Node) FindPath(s *Store) []*Node {
 	ids := strings.Split(n.Path, "/")
 	ids = ids[1:]
-	fmt.Println(ids)
-	var v []string
-	for i := 1; i <= len(ids); i++ {
-		v = append(v, "$"+strconv.Itoa(i))
-	}
-	q := "select * from nodes where id in (" + strings.Join(v, ",") + ")"
-	fmt.Println(q)
-	rows, err := s.DB.Query(q, ids)
+	q := "select * from nodes where id = any($1::integer[])"
+	rows, err := s.DB.Query(q, fmt.Sprintf("{%s}", strings.Join(ids, ", ")))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,12 +25,19 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	addr := req[1]
 	val := req[2]
 	if len(addr) > 0 && len(val) > 0 {
-		fmt.Fprintf(w, "Val: %s", val)
-		n := merkle.FindNode(store, val)
-		fmt.Fprintf(w, "Node: %s", n.Val)
+		n := merkle.FindLeaf(store, val)
 		n.FindPath(store)
+		res := make(map[string][]string)
+		res["root_hash"] = []string{n.RootHash()}
+		res["inclusion_proof"] = n.InclusionProof()
+		js, err := json.Marshal(res)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	}
-	fmt.Fprintf(w, "Request: %s!", r.URL.Path[1:])
 }
 
 func main() {
