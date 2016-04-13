@@ -20,7 +20,8 @@ var schema = `
 		r_id integer,
 		t_id integer,
 		level integer,
-		epoch integer
+		epoch integer,
+		path text
 	);
 `
 

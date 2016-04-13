@@ -4,18 +4,17 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"log"
+	"strconv"
 	"strings"
 )
 
 // Node comment
 type Node struct {
-	Parent, L, R *Node
-	LVal, RVal   []byte
-	Name, Val    []byte
-	Level, Epoch uint
-	Path         string
+	Parent, L, R          *Node
+	Name, Val, LVal, RVal string
+	Level, Epoch          uint
 	// For DB purposes
-	ID, PID, LID, RID, TID int64
+	ID, PID, LID, RID, TID int
 }
 
 // HashVal comment
@@ -139,15 +138,17 @@ func (n *Node) Find(s *Store, val string) *Node {
 	return MapToNodes(rows)[0]
 }
 
-// SetParent comment
-func (n *Node) SetParent(p *Node) {
-	n.Parent = p
-	n.Path = p.Path + "/" + string(p.ID)
+// Path comment
+func (n *Node) Path() string {
+	if n.Parent != nil {
+		return n.Parent.Path() + "/" + strconv.Itoa(n.Parent.ID)
+	}
+	return ""
 }
 
 // FindPath comment
-func (n *Node) FindPath(s *Store, val string) []*Node {
-	ids := strings.Split(n.Path, "/")
+func (n *Node) FindPath(s *Store) []*Node {
+	ids := strings.Split(n.Path(), "/")
 	q := "select * from nodes where id in ?"
 	rows, err := s.DB.Query(q, ids)
 	if err != nil {
@@ -161,8 +162,18 @@ func (n *Node) FindPath(s *Store, val string) []*Node {
 }
 
 // OrderNodes comment
-func OrderNodes(nodes []*Node) []*Node {
-	for _, n in range nodes {
-		
+func OrderNodes(n []*Node) []*Node {
+	var leaf int
+	for p, v := range n {
+		if v.Val != nil {
+			leaf = p
+		}
 	}
+	var o []*Node
+	c := n[leaf]
+	for c != nil {
+		o = append(o, c)
+		c = c.Parent
+	}
+	return o
 }
