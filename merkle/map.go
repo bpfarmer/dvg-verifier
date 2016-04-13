@@ -9,7 +9,7 @@ import (
 func MapToNodes(rows *sql.Rows) []*Node {
 	var ID, PID, LID, RID, TID int
 	var Level, Epoch uint
-	var Name, Val, LVal, RVal []byte
+	var Name, Val, LVal, RVal string
 	var Path string
 	var nodes []*Node
 	defer rows.Close()
@@ -30,6 +30,7 @@ func MapToNodes(rows *sql.Rows) []*Node {
 			TID:   TID,
 			Level: Level,
 			Epoch: Epoch,
+			Path:  Path,
 		})
 	}
 	return nodes
@@ -54,13 +55,13 @@ func (n *Node) Save(s *Store) {
 		}
 		defer stmt.Close()
 		if n.ID == 0 {
-			err = stmt.QueryRow(n.Name, n.Val, n.LVal, n.RVal, NullID(n.Parent), NullID(n.L), NullID(n.R), 0, n.Level, n.Epoch, n.Path()).Scan(&id)
+			err = stmt.QueryRow(n.Name, n.Val, n.LVal, n.RVal, NullID(n.Parent), NullID(n.L), NullID(n.R), 0, n.Level, n.Epoch, n.Addr()).Scan(&id)
 			if err != nil {
 				log.Fatal(err)
 			}
 			n.ID = id
 		} else {
-			_, err := stmt.Exec(n.Name, n.Val, n.LVal, n.RVal, NullID(n.Parent), NullID(n.L), NullID(n.R), 0, n.Level, n.Epoch, n.Path(), n.ID)
+			_, err := stmt.Exec(n.Name, n.Val, n.LVal, n.RVal, NullID(n.Parent), NullID(n.L), NullID(n.R), 0, n.Level, n.Epoch, n.Addr(), n.ID)
 			if err != nil {
 				log.Fatal(err)
 			}

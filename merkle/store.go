@@ -11,10 +11,10 @@ import (
 var schema = `
 	CREATE TABLE nodes (
 		id serial primary key,
-		name varchar(32),
-		val  varchar(32),
-		l_val varchar(32),
-		r_val varchar(32),
+		name varchar(64),
+		val  varchar(64),
+		l_val varchar(64),
+		r_val varchar(64),
 		p_id integer,
 		l_id integer,
 		r_id integer,

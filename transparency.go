@@ -24,7 +24,10 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	addr := req[1]
 	val := req[2]
 	if len(addr) > 0 && len(val) > 0 {
-
+		fmt.Fprintf(w, "Val: %s", val)
+		n := merkle.FindNode(store, val)
+		fmt.Fprintf(w, "Node: %s", n.Val)
+		n.FindPath(store)
 	}
 	fmt.Fprintf(w, "Request: %s!", r.URL.Path[1:])
 }
@@ -37,29 +40,35 @@ func main() {
 	store = &merkle.Store{DB: db}
 	store.DropTables()
 	store.AddTables()
-
 	leaves := loadLeaves()
+	leaves = merkle.BuildTree(leaves)
+	r := leaves[0].HashVal()
 	fmt.Println(leaves)
-	walk(merkle.BuildTree(leaves)[0])
-	walk(merkle.BuildTree(leaves)[0])
+	fmt.Println(r)
+	save(leaves[0])
 
 	http.HandleFunc("/verify/", verifyReq)
 	http.ListenAndServe(":4000", nil)
 }
 
+func save(n *merkle.Node) {
+	walk(n)
+	walk(n)
+}
+
 func walk(n *merkle.Node) {
-	//fmt.Println(n.ID)
+	n.Save(store)
 	if n.L != nil {
 		//fmt.Println("Left")
 		//fmt.Println(n.L.ID)
-		n.L.Save(store)
 		walk(n.L)
 	}
 	if n.R != nil {
 		//fmt.Println("Right")
 		//fmt.Println(n.R.ID)
-		n.R.Save(store)
 		walk(n.R)
+	} else {
+		fmt.Println(n.InclusionProof())
 	}
 }
 
@@ -67,23 +76,18 @@ func loadLeaves() []*merkle.Node {
 	var nodes []*merkle.Node
 	dir := "./verified"
 	files, _ := ioutil.ReadDir(dir)
-	hasher := sha256.New()
+	h := sha256.New()
 	for _, f := range files {
-		fmt.Println(f.Name())
 		o, err := os.Open(dir + "/" + f.Name())
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer o.Close()
-		if _, err := io.Copy(hasher, o); err != nil {
+		if _, err := io.Copy(h, o); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(hex.EncodeToString(hasher.Sum(nil)))
-		nodes = append(nodes, &merkle.Node{Val: hasher.Sum(nil)})
-		hasher.Reset()
+		nodes = append(nodes, &merkle.Node{Val: hex.EncodeToString(h.Sum(nil))})
+		h.Reset()
 	}
-	hasher.Write(nodes[0].Val)
-	hasher.Write(nodes[1].Val)
-	fmt.Println(hex.EncodeToString(hasher.Sum(nil)))
 	return nodes
 }

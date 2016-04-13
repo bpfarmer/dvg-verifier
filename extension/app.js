@@ -59,8 +59,8 @@ function hex2bin(str) {
 }
 
 console.log(hex2bin("132bbbb69d7e0ee918481f073d1cb14324e58031eaa78ab2c2423c7cfedf508d"));
-console.log(sha256(hex2bin("132bbbb69d7e0ee918481f073d1cb14324e58031eaa78ab2c2423c7cfedf508d")
-+ hex2bin("d2d777e00435764c1c711e533c689c0c88d1ebce7dbbe57f1a2eed2b80cc153b")));
+console.log(sha256("132bbbb69d7e0ee918481f073d1cb14324e58031eaa78ab2c2423c7cfedf508d"
++ "d2d777e00435764c1c711e533c689c0c88d1ebce7dbbe57f1a2eed2b80cc153b"));
 
 // Make request for proof of inclusion
 
