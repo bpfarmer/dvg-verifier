@@ -24,20 +24,24 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	req := strings.Split(r.URL.Path[1:], "/")
 	addr := req[1]
 	val := req[2]
+	res := make(map[string][]string)
 	if len(addr) > 0 && len(val) > 0 {
 		n := merkle.FindLeaf(store, val)
-		n.FindPath(store)
-		res := make(map[string][]string)
-		res["root_hash"] = []string{n.RootHash()}
-		res["inclusion_proof"] = n.InclusionProof()
-		js, err := json.Marshal(res)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		if n == nil {
+			res["error"] = []string{"Invalid"}
+		} else {
+			n.FindPath(store)
+			res["root_hash"] = []string{n.RootHash()}
+			res["inclusion_proof"] = n.InclusionProof()
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(js)
 	}
+	js, err := json.Marshal(res)
+	if err != nil || len(val) == 0 {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 func main() {
@@ -49,6 +53,7 @@ func main() {
 	store.DropTables()
 	store.AddTables()
 	leaves := loadLeaves()
+	fmt.Println(len(leaves))
 	leaves = merkle.BuildTree(leaves)
 	r := leaves[0].HashVal()
 	fmt.Println(leaves)

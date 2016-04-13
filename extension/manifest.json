@@ -16,7 +16,8 @@
   ],
   "content_scripts": [{
     "matches": ["<all_urls>"],
-    "js": ["pdf.js", "jquery.js", "sha256.js", "app.js"]
+    "js": ["pdf.js", "nacl.min.js", "jquery.js", "sha256.js", "app.js"],
+    "run_at": "document_end"
   }],
-  "web_accessible_resources": ["pdf.worker.js"]
+  "web_accessible_resources": ["pdf.worker.js", "key-ext-style-29.css"]
 }

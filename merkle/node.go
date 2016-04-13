@@ -152,7 +152,10 @@ func FindLeaf(s *Store, val string) *Node {
 		log.Fatal(err)
 	}
 	n := MapToNodes(rows)
-	return n[0]
+	if len(n) > 0 {
+		return n[0]
+	}
+	return nil
 }
 
 // Addr comment
