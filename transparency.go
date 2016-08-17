@@ -43,7 +43,7 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 				log.Fatal(err)
 			}
 			s := ed25519.Sign(priv, r)[:]
-			fmt.Println(s)
+			//fmt.Println(s)
 			res["signature"] = []string{hex.EncodeToString(s)}
 		}
 	}
@@ -57,7 +57,7 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	db, err := sql.Open("postgres", "user=gouser password=gouser dbname=transparency sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://gouser:gouser@localhost/transparency?sslmode=disable") //"user=gouser password=gouser dbname=transparency sslmode=disable")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -65,17 +65,19 @@ func main() {
 	store.DropTables()
 	store.AddTables()
 	pub, priv, err = ed25519.GenerateKey(rand.Reader)
-	fmt.Println(pub)
-	fmt.Println(priv)
+	//fmt.Println(pub)
+	//fmt.Println(priv)
 	leaves := loadLeaves()
-	fmt.Println(len(leaves))
+	//fmt.Println(len(leaves))
 	leaves = merkle.BuildTree(leaves)
 	r := leaves[0].HashVal()
-	fmt.Println(leaves)
+	//fmt.Println(leaves)
 	fmt.Println(r)
 	save(leaves[0])
 
+	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/verify/", verifyReq)
+	http.Handle("/", fs)
 	http.ListenAndServe(":4000", nil)
 }
 
@@ -113,5 +115,6 @@ func loadLeaves() []*merkle.Node {
 		nodes = append(nodes, &merkle.Node{Val: hex.EncodeToString(h.Sum(nil))})
 		h.Reset()
 	}
+	nodes = append(nodes, &merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"})
 	return nodes
 }
