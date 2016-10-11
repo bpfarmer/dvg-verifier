@@ -62,6 +62,6 @@ function verify_file(origin, hash) {
       }
     }
   }
-  xhr.open('GET', "http://dev.stanford.edu:4000/verify/".concat(origin).concat("/").concat(hash));
+  xhr.open('GET', "/verify/".concat(origin).concat("/").concat(hash));
   xhr.send();
 }

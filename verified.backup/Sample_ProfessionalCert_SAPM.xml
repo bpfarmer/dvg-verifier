@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AcLearning:AcademicLearning xmlns:AcLearning="urn:org:pesc:message:AcademicLearning:v0.0.1" xmlns:AcRec="urn:org:pesc:sector:AcademicRecord:v1.10.0" xmlns:core="urn:org:pesc:core:CoreMain:v1.14.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:org:pesc:message:AcademicLearning:v0.0.1 AcademicLearning_v0.0.1.xsd">
+	<Student>
+		<Person>
+			<SchoolAssignedPersonID>X200000</SchoolAssignedPersonID>
+			<Name>
+				<FirstName>Robert</FirstName>
+				<LastName>Prakash</LastName>
+			</Name>
+		</Person>
+		<AcademicLearningRecord>
+			<School>
+				<OrganizationName>Stanford University</OrganizationName>
+				<OPEID>00130500</OPEID>
+				<SchoolLevel>Postsecondary</SchoolLevel>
+				<NoteMessage>CheaID=204641</NoteMessage>
+			</School>
+			<Department>
+				<OrganizationName>School of Engineering</OrganizationName>
+			</Department>
+			<AcademicAward>
+				<AcademicAwardLevel>1.1</AcademicAwardLevel>
+				<AcademicAwardDate>2016-03-03</AcademicAwardDate>
+				<AcademicAwardTitle>SAPM</AcademicAwardTitle>
+				<AcademicSummary>
+					<AcademicSummaryType>NonDegreeApplicable</AcademicSummaryType>
+					<AcademicProgram>
+						<AcademicProgramName>Project Management</AcademicProgramName>
+					</AcademicProgram>
+				</AcademicSummary>
+				<NoteMessage>1.1 Certificate of  Achievement</NoteMessage>
+			</AcademicAward>
+			<LearningActivity>ONLINE</LearningActivity>
+			<AcademicProgram>
+				<ProgramEndorse>
+					<EndorsePositionTitle>Dean, School of Engineering</EndorsePositionTitle>
+					<Name>
+						<FirstName>Persis</FirstName>
+						<LastName>Drell</LastName>
+					</Name>
+				</ProgramEndorse>
+				<ProgramEndorse>
+					<EndorsePositionTitle>Executive Director, SCPD</EndorsePositionTitle>
+					<Name>
+						<FirstName>Paul</FirstName>
+						<LastName>Marca</LastName>
+					</Name>
+				</ProgramEndorse>
+				<ProgramOutcome>
+					<Outcome>
+						<LearningOutcomeDescription>How to remain competitive and manage change in a multi-dimensional environment</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Leadership</LearningOutcomeSkill>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>Lead cross-functional teams in a global context</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Leadership</LearningOutcomeSkill>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>Improve productivity and profitability</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Use Information Resources</LearningOutcomeSkill>
+					</Outcome>
+				</ProgramOutcome>
+			</AcademicProgram>
+			<Course>
+				<CourseCreditUnits>ContinuingEducationUnits</CourseCreditUnits>
+				<CourseNumber>XAPM110</CourseNumber>
+				<CourseShortTitle>Converting Strategy into Action </CourseShortTitle>
+				<CourseDescription>This introductory course provides the conceptual framework for all of the other courses in the program, introducing proven approaches and emerging concepts for aligning an organization's project and program initiatives with its strategic objectives.</CourseDescription>
+				<CourseInstructor>
+					<PositionTitle>Professor</PositionTitle>
+					<Name>
+						<FirstName>Ray</FirstName>
+						<LastName>Levitt</LastName>
+					</Name>
+				</CourseInstructor>
+				<LearningTopics>
+					<Topic>Align project initiatives with strategic objectives</Topic>
+					<Topic>Select, prioritize, and manage a portfolio of projects in a product development or other fast-paced business environment</Topic>
+					<Topic>Complete projects faster, with more efficient resource deployment</Topic>
+					<Topic>Use new tools to support planning and execution, thereby shrinking time to market</Topic>
+					<Topic>Address "crisis mentality" and use time more effectively</Topic>
+					<Topic>Champion advanced project management with both co-located and virtual teams</Topic>
+				</LearningTopics>
+				<LearningOutcomes>
+					<Outcome>
+						<LearningOutcomeDescription>Close the gap between knowing and doing</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Analytic Inquiry</LearningOutcomeSkill>
+						<Proficiency>Proficient</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>Customize a best-practices based organizational mastery model</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Quantitative Fluency</LearningOutcomeSkill>
+						<Proficiency>Intermediate</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>Build a stronger project-based matrix organization that is capable of consistently high performance</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Analytic Inquiry</LearningOutcomeSkill>
+						<Proficiency>Proficient</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>Value projects, firms and new ventures</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Use Information Resources</LearningOutcomeSkill>
+						<Proficiency>Proficient</Proficiency>
+					</Outcome>
+				</LearningOutcomes>
+			</Course>
+			<Course>
+				<CourseCreditUnits>ContinuingEducationUnits</CourseCreditUnits>
+				<CourseNumber>XAPM111</CourseNumber>
+				<CourseShortTitle>Leadership for Strategic Execution</CourseShortTitle>
+				<CourseDescription>This course addresses the key leadership challenges facing those with responsibility for executing their company's strategies through organizational change and portfolio, program, and project implementation.</CourseDescription>
+				<CourseInstructor>
+					<PositionTitle>Professor</PositionTitle>
+					<Name>
+						<FirstName>Bob</FirstName>
+						<LastName>Sutton</LastName>
+					</Name>
+				</CourseInstructor>
+				<LearningTopics>
+					<Topic>Leading decision-making and communications in strategic execution planning</Topic>
+					<Topic>Ensuring strategic alignment and organizational "fit"</Topic>
+					<Topic>Assessing and planning for organizational execution risks</Topic>
+					<Topic>Building collaborative partnerships through sponsorship and alliances</Topic>
+				</LearningTopics>
+				<LearningOutcomes>
+					<Outcome>
+						<LearningOutcomeDescription>Close the gap between knowing and doing</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Analytic Inquiry</LearningOutcomeSkill>
+						<Proficiency>Proficient</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>Customize a best-practices based organizational mastery model</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Quantitative Fluency</LearningOutcomeSkill>
+						<Proficiency>Intermediate</Proficiency>
+					</Outcome>
+				</LearningOutcomes>
+			</Course>
+			<Course>
+				<CourseCreditUnits>ContinuingEducationUnits</CourseCreditUnits>
+				<CourseNumber>XAPM221</CourseNumber>
+				<CourseShortTitle>Executing Complex Programs</CourseShortTitle>
+        <CourseDescription>The successful execution of complex programs in today's dynamic environment challenges managers and leaders in many ways. Without the required repertoire of advanced skills, those responsible for designing and delivering program results may face insurmountable risks.</CourseDescription>
+				<CourseInstructor>
+					<PositionTitle>Professor</PositionTitle>
+					<Name>
+						<FirstName>Ray</FirstName>
+						<LastName>Levitt</LastName>
+					</Name>
+				</CourseInstructor>
+				<CourseInstructor>
+					<PositionTitle>Consulting Professor</PositionTitle>
+					<Name>
+						<FirstName>Behnam</FirstName>
+						<LastName>Tabrizi</LastName>
+					</Name>
+				</CourseInstructor>
+				<LearningTopics>
+					<Topic>Gaining required and on-going support from senior management and key stakeholders</Topic>
+					<Topic>Cross-functional and cross-organizational team management</Topic>
+					<Topic>Understanding and managing program interfaces and interdependencies in complex systems</Topic>
+				</LearningTopics>
+				<LearningOutcomes>
+					<Outcome>
+						<LearningOutcomeDescription>How to identify opportunities and challenges</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Analytic Inquiry</LearningOutcomeSkill>
+						<Proficiency>Proficient</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>How to develop a viable course of action</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Quantitative Fluency</LearningOutcomeSkill>
+						<Proficiency>Intermediate</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>How to formulate a strategy</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Quantitative Fluency</LearningOutcomeSkill>
+						<Proficiency>Intermediate</Proficiency>
+					</Outcome>
+					<Outcome>
+						<LearningOutcomeDescription>How to execute strategy so that their employees are guided and motivated to achieve success</LearningOutcomeDescription>
+						<LearningOutcomeSkill>Analytic Inquiry</LearningOutcomeSkill>
+						<Proficiency>Intermediate</Proficiency>
+					</Outcome>
+				</LearningOutcomes>
+			</Course>
+		</AcademicLearningRecord>
+	</Student>
+</AcLearning:AcademicLearning>

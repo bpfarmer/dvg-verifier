@@ -15,6 +15,8 @@
   <script src="js/sha256.js"></script>
   <script src="js/jquery.js"></script>
   <script src="js/file_upload.js"></script>
+  <script src="js/pdf.js"></script>
+
 
 	<style>
 			.main-container
@@ -40,10 +42,10 @@
 
 				.box
 				{
-					font-size: 1.25rem; /* 20 */
+					font-size: 1.55rem; /* 20 */
 					background-color: #fff;
 					position: relative;
-					padding: 100px 20px;
+					padding: 60px 10px;
 				}
 				.box.has-advanced-upload
 				{
@@ -386,6 +388,14 @@
 
           reader.onload = function(e) {
             var data = new Uint8Array(e.target.result);
+						PDFJS.disableWorker = true;
+				    PDFJS.getDocument({data: data}).then(function(doc) {
+				      doc.getMetadata().then(function(metadata) {
+				        var origin = metadata.metadata.metadata["pdfx:verification_endpoint"];
+								console.log(origin);
+								//verify(origin, hash);
+				      });
+				    });
             var hash = sha256(data);
             verify_file("stanford.edu", hash);
           }

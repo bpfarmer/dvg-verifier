@@ -20,6 +20,13 @@ $(document).ready(function() {
 function verify_parameters(origin, hash) {
   xhr = new XMLHttpRequest();
   xhr.onload = function(e) {
+    if(params["n"] && params["cred"] && params["e"] && params["s"]) {
+      $('h3#v-name').html(params["n"].replace("_", " "));
+      $('h3#v-cred').html(params["cred"].replace(/_/g, " "));
+      var start_date = new Date(params["s"].substr(0,4), params["s"].substr(4,2) - 1);
+      var end_date = new Date(params["e"].substr(0,4), params["e"].substr(4,2) - 1);
+      $('h3#v-date').html(monthNames[start_date.getMonth()] + " " + start_date.getFullYear() + " - " + monthNames[end_date.getMonth()] + " " + end_date.getFullYear());
+    }
     res = JSON.parse(xhr.responseText);
     if(res["error"]) {
       $("h3#v-status").attr("class", "text-danger");
@@ -46,11 +53,6 @@ function verify_parameters(origin, hash) {
         console.log("Verifying Signature: " + res["signature"]);
         //console.log(new Uint8Array(res["signature"]))
         //console.log(nacl.sign.detached.verify(hexToUa(res["root_hash"]), hexToUa(res["signature"]), hexToUa(res["public_key"])))
-        $('h3#v-name').html(params["n"].replace("_", " "));
-        $('h3#v-cred').html(params["cred"].replace(/_/g, " "));
-        var start_date = new Date(params["s"].substr(0,4), params["s"].substr(4,2) - 1);
-        var end_date = new Date(params["e"].substr(0,4), params["e"].substr(4,2) - 1);
-        $('h3#v-date').html(monthNames[start_date.getMonth()] + " " + start_date.getFullYear() + " - " + monthNames[end_date.getMonth()] + " " + end_date.getFullYear());
         $("h3#v-status").attr("class", "text-success");
         $("h3#v-status").html("Valid Credential");
       }else {
@@ -59,7 +61,7 @@ function verify_parameters(origin, hash) {
       }
     }
   }
-  xhr.open('GET', "http://local-dev.stanford.edu:4000/verify/".concat(origin).concat("/").concat(hash));
+  xhr.open('GET', "/verify/".concat(origin).concat("/").concat(hash));
   xhr.send();
 }
 //console.log(sha256())
