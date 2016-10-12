@@ -241,7 +241,10 @@
                 <strong>Click here</strong><span class="box__dragndrop"> or drag a file to verify</span>.</label>
                 <button type="submit" class="box__button">Upload</button>
               </div>
-              <div class="box__success"><h3 id="v-status" class="text-success">Valid Credential</h3></div>
+              <div class="box__success">
+								<h3 id="v-status" class="text-success">Valid Credential</h3>
+								<h4 id="multiple-origins" class="text-success"></h4>
+							</div>
               <div class="box__error"><h3 id="v-status" class="text-danger">Invalid Credential</h3></div>
             </form>
           </div>
@@ -387,15 +390,7 @@
           var reader = new FileReader();
 
           reader.onload = function(e) {
-            var data = new Uint8Array(e.target.result);
-						PDFJS.disableWorker = true;
-				    PDFJS.getDocument({data: data}).then(function(doc) {
-				      doc.getMetadata().then(function(metadata) {
-				        var origin = metadata.metadata.metadata["pdfx:verification_endpoint"];
-								console.log(origin);
-								//verify(origin, hash);
-				      });
-				    });
+			      var data = new Uint8Array(e.target.result);
             var hash = sha256(data);
             verify_file("stanford.edu", hash);
           }
@@ -440,8 +435,7 @@
 
             reader.onload = function(e) {
               var data = new Uint8Array(e.target.result);
-              var hash = sha256(data);
-              verify_file("stanford.edu", hash);
+              verify_file("stanford.edu", data);
             }
             reader.readAsArrayBuffer(f);
           }

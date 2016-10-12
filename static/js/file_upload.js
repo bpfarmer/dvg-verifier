@@ -12,8 +12,7 @@ function handleFileSelect(evt) {
 
     reader.onload = function(e) {
       var data = new Uint8Array(e.target.result);
-      var hash = sha256(data);
-      verify_file("stanford.edu", hash);
+      verify_file("stanford.edu", data);
     }
     reader.readAsArrayBuffer(f);
   }
@@ -26,7 +25,8 @@ function handleDragOver(evt) {
   evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 }
 
-function verify_file(origin, hash) {
+function verify_file(origin, data) {
+  var hash = sha256(data);
   xhr = new XMLHttpRequest();
   xhr.onload = function(e) {
     res = JSON.parse(xhr.responseText);
@@ -55,6 +55,19 @@ function verify_file(origin, hash) {
       if(curHash == res["root_hash"]) {
         console.log("Verifying Signature: " + res["signature"]);
         $(".box__success:first").show();
+        PDFJS.disableWorker = true;
+        PDFJS.getDocument({data: data}).then(function(doc) {
+          console.log("IN HERE");
+          doc.getMetadata().then(function(metadata) {
+            var origin = JSON.parse(metadata.metadata.metadata["pdfx:verification_endpoint"]);
+            console.log("EVEN IN HERE");
+            console.log(origin);
+            if(origin.length > 1) {
+              $("#multiple-origins").text("Also validated by: " + origin[1]);
+            }
+            //verify(origin, hash);
+          });
+        });
         //console.log(new Uint8Array(res["signature"]))
         //console.log(nacl.sign.detached.verify(hexToUa(res["root_hash"]), hexToUa(res["signature"]), hexToUa(res["public_key"])))
       }else {
