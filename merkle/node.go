@@ -158,6 +158,17 @@ func FindLeaf(s *Store, val string) *Node {
 	return nil
 }
 
+// GetLeaves comment
+func GetLeaves(s *Store) []*Node {
+	q := "select * from nodes where (lval = '') is not false and (rval = '') is not false"
+	rows, err := s.DB.Query(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+	nodes := MapToNodes(rows)
+	return nodes
+}
+
 // Addr comment
 func (n *Node) Addr() string {
 	if n.Parent != nil {

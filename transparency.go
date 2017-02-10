@@ -57,7 +57,8 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	db, err := sql.Open("postgres", "postgres://gouser:gouser@localhost/transparency?sslmode=disable") //"user=gouser password=gouser dbname=transparency sslmode=disable")
+	db_name := fmt.Sprintf("postgres://gouser:gouser@localhost/%s?sslmode=disable", os.Args[0])
+	db, err := sql.Open("postgres", db_name) //"user=gouser password=gouser dbname=transparency sslmode=disable")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -74,11 +75,10 @@ func main() {
 	//fmt.Println(leaves)
 	fmt.Println(r)
 	save(leaves[0])
-
 	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/verify/", verifyReq)
 	http.Handle("/", fs)
-	http.ListenAndServe(":4000", nil)
+	http.ListenAndServe(fmt.Sprintf(":%s", os.Args[1]), nil)
 }
 
 func save(n *merkle.Node) {

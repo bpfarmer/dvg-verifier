@@ -1,0 +1,23 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
+
+.navbar {
+  background-color: #8C1515;
+  height: 30px;
+}
+
+.navbar img {
+  width: 153px;
+  height: 22px;
+}
+
+.registrar-text {
+  font-weight: 700;
+  font-size: 44px;
+  color: #3F3C30;
+  font-family: "Source Sans Pro", Arial, Helvetica, sans-serif;
+  padding-top:5px;
+}
