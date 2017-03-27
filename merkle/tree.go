@@ -123,6 +123,7 @@ func FindNode(s *Store, val string) *Node {
 	return nil
 }
 
+/*
 // GetLeaves comment
 func GetLeaves(s *Store) []*Node {
 	q := "select * from nodes where (l_val = '') is not false and (r_val = '') is not false"
@@ -133,6 +134,7 @@ func GetLeaves(s *Store) []*Node {
 	nodes := MapToNodes(rows)
 	return nodes
 }
+*/
 
 // AddLeaf comment
 func (t *Tree) AddLeaf(n *Node, s *Store) {

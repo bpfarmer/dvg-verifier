@@ -9,9 +9,9 @@ import (
 
 // Node comment
 type Node struct {
-	P, L, R               *Node
-	LVal, RVal, Val, Path string
-	Epoch                 uint
+	P, L, R         *Node
+	LVal, RVal, Val string
+	Epoch           uint
 	// For DB purposes, probably unnecessary to include
 	ID int
 }
@@ -82,6 +82,7 @@ func (n *Node) IsLeaf() bool {
 
 var leaves []*Node
 
+/*
 // Leaves comment
 func (n *Node) Leaves() []*Node {
 	leaves = []*Node{}
@@ -101,6 +102,20 @@ func (n *Node) leaves() []*Node {
 		}
 	}
 	return leaves
+}*/
+
+// Path comment
+func (n *Node) Path(s *Store) []*Node {
+	var path []*Node
+	return n.calculatePath(path, s)
+}
+
+func (n *Node) calculatePath(nodes []*Node, s *Store) []*Node {
+	nodes = append(nodes, n)
+	if n.PEntry(s) != nil {
+		nodes = n.PEntry(s).calculatePath(nodes, s)
+	}
+	return nodes
 }
 
 /*
