@@ -1,6 +1,7 @@
 package merkle
 
 // InsertLeaf Patricia Leaf
+/*
 func (t *Tree) InsertLeaf(leaf *Node) {
 	curNode := t.Root
 	var offset uint
@@ -44,3 +45,4 @@ func ShiftDown(n *Node) *Node {
 	n.InsertBelow(&intNode)
 	return &intNode
 }
+*/

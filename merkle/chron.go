@@ -29,12 +29,12 @@ func BuildSubTree(l []*Node) []*Node {
 	}
 	var parents []*Node
 	for n := 0; n < len(l); n += 2 {
-		if l[n+1].Parent == nil {
+		if l[n+1].P == nil {
 			p := &Node{L: l[n], R: l[n+1]}
-			l[n].Parent = p
-			l[n+1].Parent = p
+			l[n].P = p
+			l[n+1].P = p
 		}
-		parents = append(parents, l[n].Parent)
+		parents = append(parents, l[n].P)
 	}
 	return BuildSubTree(parents)
 }

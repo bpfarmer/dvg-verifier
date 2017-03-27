@@ -1,24 +1,19 @@
 package merkle
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
-	"log"
-	"strconv"
-	"strings"
 )
 
 // Node comment
 type Node struct {
-	Parent, L, R          *Node
-	LVal, RVal, Name, Val string
-	Level, Epoch          uint
-	Path                  string
-	// For DB purposes
-	ID, PID, LID, RID, TID int
+	P, L, R               *Node
+	LVal, RVal, Val, Path string
+	Epoch                 uint
+	// For DB purposes, probably unnecessary to include
+	ID int
 }
 
 // HashVal comment
@@ -60,13 +55,13 @@ func (n *Node) InclusionProof() []string {
 	c := n
 	fmt.Println("--INCLUSION PROOF--")
 	fmt.Println(c.Val)
-	for c.Parent != nil {
-		if c.Parent.LVal == c.HashVal() {
-			p = append(p, c.Parent.RVal+"_R")
+	for c.P != nil {
+		if c.P.LVal == c.HashVal() {
+			p = append(p, c.P.RVal+"_R")
 		} else {
-			p = append(p, c.Parent.LVal+"_L")
+			p = append(p, c.P.LVal+"_L")
 		}
-		c = c.Parent
+		c = c.P
 	}
 	return p
 }
@@ -74,46 +69,10 @@ func (n *Node) InclusionProof() []string {
 // RootHash comment
 func (n *Node) RootHash() string {
 	c := n
-	for c.Parent != nil {
-		c = c.Parent
+	for c.P != nil {
+		c = c.P
 	}
 	return c.HashVal()
-}
-
-// Sib comment
-func (n *Node) Sib() *Node {
-	if n.Parent != nil {
-		if n.IsR() {
-			return n.Parent.L
-		}
-		return n.Parent.R
-	}
-	return nil
-}
-
-// Prefix comment
-func (n *Node) Prefix(buf bytes.Buffer) string {
-	for n.Parent != nil {
-		if n.IsR() {
-			buf.WriteString("1")
-		} else {
-			buf.WriteString("0")
-		}
-	}
-	return buf.String()
-}
-
-// IsR comment
-func (n *Node) IsR() bool {
-	return n.Parent.R == n
-}
-
-// Dir comment
-func (n *Node) Dir() string {
-	if n.IsR() {
-		return "R"
-	}
-	return "L"
 }
 
 // IsLeaf comment
@@ -144,31 +103,7 @@ func (n *Node) leaves() []*Node {
 	return leaves
 }
 
-// FindLeaf comment
-func FindLeaf(s *Store, val string) *Node {
-	q := "select * from nodes where val = $1"
-	rows, err := s.DB.Query(q, val)
-	if err != nil {
-		log.Fatal(err)
-	}
-	n := MapToNodes(rows)
-	if len(n) > 0 {
-		return n[0]
-	}
-	return nil
-}
-
-// GetLeaves comment
-func GetLeaves(s *Store) []*Node {
-	q := "select * from nodes where (lval = '') is not false and (rval = '') is not false"
-	rows, err := s.DB.Query(q)
-	if err != nil {
-		log.Fatal(err)
-	}
-	nodes := MapToNodes(rows)
-	return nodes
-}
-
+/*
 // Addr comment
 func (n *Node) Addr() string {
 	if n.Parent != nil {
@@ -177,6 +112,7 @@ func (n *Node) Addr() string {
 	return ""
 }
 
+/*
 // FindPath comment
 func (n *Node) FindPath(s *Store) []*Node {
 	ids := strings.Split(n.Path, "/")
@@ -209,3 +145,4 @@ func OrderPath(n []*Node) []*Node {
 	}
 	return o
 }
+*/

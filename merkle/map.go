@@ -7,30 +7,20 @@ import (
 
 // MapToNodes comment
 func MapToNodes(rows *sql.Rows) []*Node {
-	var ID, PID, LID, RID, TID int
-	var Level, Epoch uint
-	var Name, Val, LVal, RVal string
-	var Path string
+	var ID int
+	var Val, LVal, RVal string
 	var nodes []*Node
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&ID, &Name, &Val, &LVal, &RVal, &PID, &LID, &RID, &TID, &Level, &Epoch, &Path)
+		err := rows.Scan(&ID, &Val, &LVal, &RVal)
 		if err != nil {
 			log.Fatal(err)
 		}
 		nodes = append(nodes, &Node{
-			ID:    ID,
-			Name:  Name,
-			Val:   Val,
-			LVal:  LVal,
-			RVal:  RVal,
-			PID:   PID,
-			LID:   LID,
-			RID:   RID,
-			TID:   TID,
-			Level: Level,
-			Epoch: Epoch,
-			Path:  Path,
+			ID:   ID,
+			Val:  Val,
+			LVal: LVal,
+			RVal: RVal,
 		})
 	}
 	return nodes
@@ -41,12 +31,11 @@ func (n *Node) Save(s *Store) {
 	var q string
 	var id int
 	if n.ID == 0 {
-		q = `INSERT INTO nodes (name, val, l_val, r_val, p_id, l_id, r_id, t_id, level, epoch, path)
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		q = `INSERT INTO nodes (val, l_val, r_val)
+        VALUES($1, $2, $3)
         RETURNING id;`
 	} else {
-		q = `UPDATE nodes SET name=$1, val=$2, l_val=$3, r_val=$4, p_id=$5,
-        l_id=$6, r_id=$7, t_id=$8, level=$9, epoch=$10, path=$11 WHERE id = $12;`
+		q = `UPDATE nodes SET val=$2, l_val=$3, r_val=$4 WHERE id = $1;`
 	}
 	s.Save(func(tx *sql.Tx) {
 		stmt, err := tx.Prepare(q)
@@ -55,13 +44,13 @@ func (n *Node) Save(s *Store) {
 		}
 		defer stmt.Close()
 		if n.ID == 0 {
-			err = stmt.QueryRow(n.Name, n.Val, n.LVal, n.RVal, NullID(n.Parent), NullID(n.L), NullID(n.R), 0, n.Level, n.Epoch, n.Addr()).Scan(&id)
+			err = stmt.QueryRow(n.Val, n.LVal, n.RVal).Scan(&id)
 			if err != nil {
 				log.Fatal(err)
 			}
 			n.ID = id
 		} else {
-			_, err := stmt.Exec(n.Name, n.Val, n.LVal, n.RVal, NullID(n.Parent), NullID(n.L), NullID(n.R), 0, n.Level, n.Epoch, n.Addr(), n.ID)
+			_, err := stmt.Exec(n.ID, n.Val, n.LVal, n.RVal)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -83,11 +72,11 @@ func AssocNodes(l []*Node) []*Node {
 	r := l
 	for _, n := range r {
 		var k int
-		if n.Parent == nil {
-			k = SliceIndex(len(r), func(i int) bool { return r[i].ID == n.PID })
+		if n.P == nil {
+			k = SliceIndex(len(r), func(i int) bool { return r[i].Val == n.LVal || r[i].Val == n.RVal })
 			if k != -1 {
-				n.Parent = r[k]
-				if r[k].LID == n.ID {
+				n.P = r[k]
+				if r[k].LVal == n.Val {
 					r[k].L = n
 				} else {
 					r[k].R = n
