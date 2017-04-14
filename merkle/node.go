@@ -118,6 +118,16 @@ func (n *Node) calculatePath(nodes []*Node, s *Store) []*Node {
 	return nodes
 }
 
+func (n *Node) SaveChildren(s *Store) {
+	if n.L != nil {
+		n.L.Save(s)
+	}
+	if n.R != nil {
+		n.R.Save(s)
+	}
+	n.Save(s)
+}
+
 /*
 // Addr comment
 func (n *Node) Addr() string {

@@ -84,20 +84,29 @@ func main() {
 func test(s *merkle.Store) {
 	//Hashing some things and making them nodes
 	log.Println("Hashing some things")
-	nodes := [...]*merkle.Node{&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"},
-		&merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"}}
+	nodes := [...]*merkle.Node{&merkle.Node{Val: "1"},
+		&merkle.Node{Val: "2"},
+		&merkle.Node{Val: "3"},
+		&merkle.Node{Val: "4"},
+		&merkle.Node{Val: "5"},
+		&merkle.Node{Val: "6"},
+		&merkle.Node{Val: "7"},
+		&merkle.Node{Val: "8"}}
 
 	//Store things in a Tree
 	log.Println("Storing some things in a tree")
 	tree := &merkle.Tree{}
 	for _, n := range nodes {
+		if tree.Root != nil {
+			log.Println("transparency.test():tree root=" + tree.Root.Val)
+		} else {
+			log.Println("transparecy.test():tree has no root")
+		}
 		tree.AddLeaf(n, s)
+		log.Println("transparency.test():new node val=" + n.Val)
+		if n.P != nil {
+			log.Println("transparency.test():new node parent=" + n.P.Val)
+		}
 	}
 	//Append to that Tree
 	log.Println("Appending to that tree")
