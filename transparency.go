@@ -4,13 +4,17 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"transparency/merkle"
 
+	"github.com/agl/ed25519"
 	_ "github.com/lib/pq"
 )
 
@@ -18,7 +22,6 @@ var store *merkle.Store
 var pub *[32]byte
 var priv *[64]byte
 
-/*
 // /verify/stanford.edu/asdfasdf9as8d7f0as98df7as
 func verifyReq(w http.ResponseWriter, r *http.Request) {
 	req := strings.Split(r.URL.Path[1:], "/")
@@ -30,11 +33,10 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 		if n == nil {
 			res["error"] = []string{"Invalid"}
 		} else {
-			n.FindPath(store)
-			res["root_hash"] = []string{n.RootHash()}
-			res["inclusion_proof"] = n.InclusionProof()
+			res["root_hash"] = []string{n.RootHash(store)}
+			res["inclusion_proof"] = n.InclusionProof(store)
 			res["public_key"] = []string{hex.EncodeToString(pub[:])}
-			r, err := hex.DecodeString(n.RootHash())
+			r, err := hex.DecodeString(n.RootHash(store))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -51,7 +53,6 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
-*/
 
 func main() {
 	dbName := fmt.Sprintf("postgres://gouser:gouser@localhost/%s?sslmode=disable", "transparency")
@@ -62,23 +63,13 @@ func main() {
 	store = &merkle.Store{DB: db}
 	store.DropTables()
 	store.AddTables()
-	test(store)
-	/*
-		pub, priv, err = ed25519.GenerateKey(rand.Reader)
-		//fmt.Println(pub)
-		//fmt.Println(priv)
-		leaves := loadLeaves()
-		//fmt.Println(len(leaves))
-		leaves = merkle.BuildTree(leaves)
-		r := leaves[0].HashVal()
-		//fmt.Println(leaves)
-		fmt.Println(r)
-		save(leaves[0])
-		fs := http.FileServer(http.Dir("static"))
-		http.HandleFunc("/verify/", verifyReq)
-		http.Handle("/", fs)
-		http.ListenAndServe(fmt.Sprintf(":%s", os.Args[1]), nil)
-	*/
+	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
+	leaves := loadLeaves()
+	merkle.BuildTree(leaves)
+	fs := http.FileServer(http.Dir("static"))
+	http.HandleFunc("/verify/", verifyReq)
+	http.Handle("/", fs)
+	http.ListenAndServe(fmt.Sprintf(":%s", os.Args[1]), nil)
 }
 
 func test(s *merkle.Store) {

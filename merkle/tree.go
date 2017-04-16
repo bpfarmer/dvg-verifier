@@ -56,22 +56,14 @@ func (n *Node) CountNodesAtLevel(c int, level int, s *Store) int {
 // ShiftInsert comment
 func (n *Node) ShiftInsert(node *Node, leafCount int, s *Store) {
 	l := 0
-	log.Println("Node.ShiftInsert():trying to add " + node.Val)
-	log.Println("Node.ShiftInsert():RightMostNode=" + n.Val)
-	if n.PEntry(s) != nil {
-		log.Println("Node.ShiftInsert():RightMostParent=" + n.P.Val)
-	}
 	o := n
 	if leafCount%2 == 0 {
 		d := targetShiftDepth(leafCount)
-		log.Println("Node.ShiftInsert():stepping up " + strconv.Itoa(d) + " levels")
 		for l < d && o.PEntry(s) != nil {
 			o = o.PEntry(s)
 			l++
 		}
 	}
-
-	log.Println("Node.ShiftInsert():arriving at " + o.Val)
 	p := &Node{L: o, R: node, P: o.P}
 	o.P = p
 	node.P = p
@@ -88,18 +80,12 @@ func (n *Node) ShiftInsert(node *Node, leafCount int, s *Store) {
 
 func targetShiftDepth(leafCount int) int {
 	n := int(math.Floor(math.Log2(float64(leafCount))))
-	log.Println("Node.targetShiftDepth():largest left subtree size=" + strconv.Itoa(int(math.Exp2(float64(n)))))
-	log.Println("Node.targetShiftDepth():d=" + strconv.Itoa(n))
-
 	// Find the complete right subtree
 	for leafCount != int(math.Exp2(float64(n))) {
 		if leafCount-int(math.Exp2(float64(n))) >= 0 {
-			log.Println("Node.targetShiftDepth():able to remove left subtree of size " + strconv.Itoa(int(math.Exp2(float64(n)))))
 			leafCount -= int(math.Exp2(float64(n)))
-			log.Println("Node.targetShiftDepth():new leaf count=" + strconv.Itoa(leafCount))
 		}
 		n--
-		log.Println("Node.targetShiftDepth():decrementing n=" + strconv.Itoa(n))
 	}
 	return n
 }
