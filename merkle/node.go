@@ -50,27 +50,27 @@ func hashEmpty(subHash string) string {
 }
 
 // InclusionProof comment
-func (n *Node) InclusionProof() []string {
+func (n *Node) InclusionProof(s *Store) []string {
 	var p []string
 	c := n
 	fmt.Println("--INCLUSION PROOF--")
 	fmt.Println(c.Val)
-	for c.P != nil {
-		if c.P.LVal == c.HashVal() {
-			p = append(p, c.P.RVal+"_R")
+	for c.PEntry(s) != nil {
+		if c.PEntry(s).LVal == c.HashVal() {
+			p = append(p, c.PEntry(s).RVal+"_R")
 		} else {
-			p = append(p, c.P.LVal+"_L")
+			p = append(p, c.PEntry(s).LVal+"_L")
 		}
-		c = c.P
+		c = c.PEntry(s)
 	}
 	return p
 }
 
 // RootHash comment
-func (n *Node) RootHash() string {
+func (n *Node) RootHash(s *Store) string {
 	c := n
 	for c.P != nil {
-		c = c.P
+		c = c.PEntry(s)
 	}
 	return c.HashVal()
 }
@@ -81,28 +81,6 @@ func (n *Node) IsLeaf() bool {
 }
 
 var leaves []*Node
-
-/*
-// Leaves comment
-func (n *Node) Leaves() []*Node {
-	leaves = []*Node{}
-	return n.leaves()
-}
-
-// Leaves comment
-func (n *Node) leaves() []*Node {
-	if n.IsLeaf() {
-		leaves = append(leaves, n)
-	} else {
-		if n.L != nil {
-			n.L.leaves()
-		}
-		if n.R != nil {
-			n.R.leaves()
-		}
-	}
-	return leaves
-}*/
 
 // Path comment
 func (n *Node) Path(s *Store) []*Node {
@@ -117,57 +95,3 @@ func (n *Node) calculatePath(nodes []*Node, s *Store) []*Node {
 	}
 	return nodes
 }
-
-func (n *Node) SaveChildren(s *Store) {
-	if n.L != nil {
-		n.L.Save(s)
-	}
-	if n.R != nil {
-		n.R.Save(s)
-	}
-	n.Save(s)
-}
-
-/*
-// Addr comment
-func (n *Node) Addr() string {
-	if n.Parent != nil {
-		return n.Parent.Addr() + "/" + strconv.Itoa(n.Parent.ID)
-	}
-	return ""
-}
-
-/*
-// FindPath comment
-func (n *Node) FindPath(s *Store) []*Node {
-	ids := strings.Split(n.Path, "/")
-	ids = ids[1:]
-	q := "select * from nodes where id = any($1::integer[])"
-	rows, err := s.DB.Query(q, fmt.Sprintf("{%s}", strings.Join(ids, ", ")))
-	if err != nil {
-		log.Fatal(err)
-	}
-	path := MapToNodes(rows)
-	path = append(path, n)
-	AssocNodes(path)
-	OrderPath(path)
-	return path
-}
-
-// OrderPath comment
-func OrderPath(n []*Node) []*Node {
-	var leaf int
-	for p, v := range n {
-		if len(v.Val) > 0 {
-			leaf = p
-		}
-	}
-	var o []*Node
-	c := n[leaf]
-	for c != nil {
-		o = append(o, c)
-		c = c.Parent
-	}
-	return o
-}
-*/

@@ -32,49 +32,85 @@ func (t *Tree) CountLeaves(s *Store) int {
 	return count
 }
 
-// RInsert comment
-func (n *Node) RInsert(node *Node, s *Store) {
-	log.Println("Node.RInsert():inserting node")
-	o := n.P
-	p := &Node{L: n, R: node}
-	p.P = o
-	n.P = p
+// CountNodesAtLevel just for debugging purposes
+/*
+func (n *Node) CountNodesAtLevel(c int, level int, s *Store) int {
+	count := 0
+	if c < level {
+		l := n.LEntry(s)
+		r := n.REntry(s)
+
+		if l != nil {
+			count += l.CountNodesAtLevel(c+1, level, s)
+		}
+
+		if r != nil {
+			count += r.CountNodesAtLevel(c+1, level, s)
+		}
+	} else {
+		return 1
+	}
+	return count
+}*/
+
+// ShiftInsert comment
+func (n *Node) ShiftInsert(node *Node, leafCount int, s *Store) {
+	l := 0
+	log.Println("Node.ShiftInsert():trying to add " + node.Val)
+	log.Println("Node.ShiftInsert():RightMostNode=" + n.Val)
+	if n.PEntry(s) != nil {
+		log.Println("Node.ShiftInsert():RightMostParent=" + n.P.Val)
+	}
+	o := n
+	if leafCount%2 == 0 {
+		d := targetShiftDepth(leafCount)
+		log.Println("Node.ShiftInsert():stepping up " + strconv.Itoa(d) + " levels")
+		for l < d && o.PEntry(s) != nil {
+			o = o.PEntry(s)
+			l++
+		}
+	}
+
+	log.Println("Node.ShiftInsert():arriving at " + o.Val)
+	p := &Node{L: o, R: node, P: o.P}
+	o.P = p
 	node.P = p
-	// TODO: remove this
-	p.LVal = n.Val
-	p.RVal = node.Val
-	p.Val = n.Val + "_" + node.Val
-	if o == nil {
+
+	if p.P == nil {
 		return
 	}
-	log.Println("Node.RInsert():current parent=" + o.Val)
-	if o.L == n {
-		o.L = p
+	if p.P.L == o {
+		p.P.L = p
 	} else {
-		o.R = p
+		p.P.R = p
 	}
 }
 
-// LInsert comment
-func (n *Node) LInsert(node *Node, s *Store) {
-	log.Println("Node.LInsert():inserting node")
-	o := n.P
-	p := &Node{L: node, R: n, P: o}
-	n.P = p
-	node.P = p
-	// TODO: remove this
-	p.LVal = node.Val
-	p.RVal = n.Val
-	p.Val = node.Val + "_" + n.Val
-	if o == nil {
-		return
+func targetShiftDepth(leafCount int) int {
+	n := int(math.Floor(math.Log2(float64(leafCount))))
+	log.Println("Node.targetShiftDepth():largest left subtree size=" + strconv.Itoa(int(math.Exp2(float64(n)))))
+	log.Println("Node.targetShiftDepth():d=" + strconv.Itoa(n))
+
+	// Find the complete right subtree
+	for leafCount != int(math.Exp2(float64(n))) {
+		if leafCount-int(math.Exp2(float64(n))) >= 0 {
+			log.Println("Node.targetShiftDepth():able to remove left subtree of size " + strconv.Itoa(int(math.Exp2(float64(n)))))
+			leafCount -= int(math.Exp2(float64(n)))
+			log.Println("Node.targetShiftDepth():new leaf count=" + strconv.Itoa(leafCount))
+		}
+		n--
+		log.Println("Node.targetShiftDepth():decrementing n=" + strconv.Itoa(n))
 	}
-	log.Println("Node.RInsert():current parent=" + o.Val)
-	if o.L == n {
-		o.L = p
-	} else {
-		o.R = p
+	return n
+}
+
+// RMostEntry returns the right-most descendant
+func (n *Node) RMostEntry(s *Store) *Node {
+	node := n
+	for node.REntry(s) != nil {
+		node = node.REntry(s)
 	}
+	return node
 }
 
 // LEntry comment
@@ -148,24 +184,9 @@ func FindNode(s *Store, val string) *Node {
 	return nil
 }
 
-/*
-// GetLeaves comment
-func GetLeaves(s *Store) []*Node {
-	q := "select * from nodes where (l_val = '') is not false and (r_val = '') is not false"
-	rows, err := s.DB.Query(q)
-	if err != nil {
-		log.Fatal(err)
-	}
-	nodes := MapToNodes(rows)
-	return nodes
-}
-*/
-
 // AddLeaf comment
 func (t *Tree) AddLeaf(n *Node, s *Store) {
-	node := t.Root
-
-	if node == nil {
+	if t.Root == nil {
 		log.Println("Tree.AddLeaf():handle the case of a fresh tree")
 		t.Root = n
 		n.Save(s)
@@ -174,55 +195,18 @@ func (t *Tree) AddLeaf(n *Node, s *Store) {
 
 	leafCount := t.CountLeaves(s)
 	log.Print("Tree.AddLeaf():leafCount=" + strconv.Itoa(leafCount))
-
-	log.Println("Tree.AddLeaf():check whether the tree is currently balanced")
-	if math.Log2(float64(leafCount)) == math.Floor(math.Log2(float64(leafCount))) {
-		log.Println("Tree.AddLeaf():tree is currently balanced")
-		node.RInsert(n, s)
-	} else {
-		path := strconv.FormatInt(int64(leafCount), 2)
-		log.Println("Tree.AddLeaf():binary prefix of path: " + path)
-
-		log.Println("Tree.AddLeaf():iterate through the path to find the insertion point")
-		for _, d := range path {
-			log.Println("Tree.AddLeaf():current path direction=" + strconv.QuoteRune(d))
-			switch d {
-			case '0':
-				log.Println("Tree.AddLeaf():traversing left")
-				if node.LEntry(s) != nil {
-					log.Println("Tree.AddLeaf():left child exists, reassigning node")
-					node = node.LEntry(s)
-				} else {
-					log.Println("Tree.AddLeaf():no left child exists, inserting left")
-					node.LInsert(n, s)
-				}
-			case '1':
-				log.Println("Tree.AddLeaf():traversing right")
-				if node.REntry(s) != nil {
-					log.Println("Tree.AddLeaf():right child exists, reassigning node")
-					node = node.REntry(s)
-				} else {
-					log.Println("Tree.AddLeaf():no right child exists, inserting right")
-					node.RInsert(n, s)
-				}
-			}
-		}
-	}
+	node := t.Root.RMostEntry(s)
+	node.ShiftInsert(n, leafCount, s)
 
 	if t.Root.P != nil {
 		t.Root = t.Root.P
 	}
 
-	// TODO: remove this
-	node.Save(s)
-	if node.P != nil {
-		node.P.SaveChildren(s)
-	}
 	// Recursively rehash beginning with new leaf
-	//walkHash(n, s)
+	walkHash(n, s)
 
 	// Recursively save nodes affected by update
-	//walkSave(n, s)
+	walkSave(n, s)
 }
 
 // walkSave comment

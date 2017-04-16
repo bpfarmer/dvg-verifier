@@ -91,43 +91,37 @@ func test(s *merkle.Store) {
 		&merkle.Node{Val: "5"},
 		&merkle.Node{Val: "6"},
 		&merkle.Node{Val: "7"},
-		&merkle.Node{Val: "8"}}
+		&merkle.Node{Val: "8"},
+		&merkle.Node{Val: "9"},
+		&merkle.Node{Val: "10"},
+		&merkle.Node{Val: "11"},
+		&merkle.Node{Val: "12"},
+		&merkle.Node{Val: "13"},
+		&merkle.Node{Val: "14"},
+		&merkle.Node{Val: "15"},
+		&merkle.Node{Val: "16"},
+		&merkle.Node{Val: "17"},
+		&merkle.Node{Val: "18"}}
 
 	//Store things in a Tree
 	log.Println("Storing some things in a tree")
 	tree := &merkle.Tree{}
 	for _, n := range nodes {
-		if tree.Root != nil {
-			log.Println("transparency.test():tree root=" + tree.Root.Val)
-		} else {
-			log.Println("transparecy.test():tree has no root")
-		}
 		tree.AddLeaf(n, s)
-		log.Println("transparency.test():new node val=" + n.Val)
-		if n.P != nil {
-			log.Println("transparency.test():new node parent=" + n.P.Val)
-		}
 	}
+
+	/*
+		log.Println("Counting Nodes at Level 0 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 0, s)))
+		log.Println("Counting Nodes at Level 1 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 1, s)))
+		log.Println("Counting Nodes at Level 2 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 2, s)))
+		log.Println("Counting Nodes at Level 3 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 3, s)))
+		log.Println("Counting Nodes at Level 4 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 4, s)))
+		log.Println("Counting Nodes at Level 5 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 5, s)))
+	*/
 	//Append to that Tree
 	log.Println("Appending to that tree")
 	//Remove from that Tree
 	log.Println("Removing from that tree")
-}
-
-func save(n *merkle.Node) {
-	walk(n)
-}
-
-func walk(n *merkle.Node) {
-	n.Save(store)
-	if n.L != nil {
-		walk(n.L)
-	}
-	if n.R != nil {
-		walk(n.R)
-	} else {
-		fmt.Println(n.InclusionProof())
-	}
 }
 
 func loadLeaves() []*merkle.Node {
