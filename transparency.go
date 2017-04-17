@@ -14,11 +14,11 @@ import (
 	"strings"
 	"transparency/merkle"
 
-	"github.com/agl/ed25519"
 	_ "github.com/lib/pq"
 )
 
 var store *merkle.Store
+var auth_token string
 var pub *[32]byte
 var priv *[64]byte
 
@@ -31,20 +31,22 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	res := make(map[string][]string)
 	if len(addr) > 0 && len(val) > 0 {
 		n := merkle.FindNode(store, val)
-		log.Println("Transparency.verifyReq():node.Val=" + n.Val)
 		if n == nil {
 			res["error"] = []string{"Invalid"}
 		} else {
+			log.Println("Transparency.verifyReq():node.Val=" + n.Val)
 			res["root_hash"] = []string{n.RootHash(store)}
 			res["inclusion_proof"] = n.InclusionProof(store)
-			//res["public_key"] = []string{hex.EncodeToString(pub[:])}
-			//r, err := hex.DecodeString(n.RootHash(store))
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			//s := ed25519.Sign(priv, r)[:]
-			//fmt.Println(s)
-			//res["signature"] = []string{hex.EncodeToString(s)}
+			/*
+				res["public_key"] = []string{hex.EncodeToString(pub[:])}
+				r, err := hex.DecodeString(n.RootHash(store))
+				if err != nil {
+					log.Fatal(err)
+				}
+				s := ed25519.Sign(priv, r)[:]
+				fmt.Println(s)
+				res["signature"] = []string{hex.EncodeToString(s)}
+			*/
 		}
 	}
 	js, err := json.Marshal(res)
@@ -59,35 +61,24 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 // POST /add
 func addReq(w http.ResponseWriter, r *http.Request) {
 	req := strings.Split(r.URL.Path[1:], "/")
-	addr := req[1]
-	val := req[2]
-	log.Println("Transparency.addReq():val=" + val)
-	res := make(map[string][]string)
-	if len(addr) > 0 && len(val) > 0 {
-		n := merkle.FindNode(store, val)
-		log.Println("Transparency.addReq():node val=" + n.Val)
-		if n == nil {
-			res["error"] = []string{"Invalid"}
-		} else {
-			res["root_hash"] = []string{n.RootHash(store)}
-			res["inclusion_proof"] = n.InclusionProof(store)
-			res["public_key"] = []string{hex.EncodeToString(pub[:])}
-			r, err := hex.DecodeString(n.RootHash(store))
-			if err != nil {
-				log.Fatal(err)
-			}
-			s := ed25519.Sign(priv, r)[:]
-			//fmt.Println(s)
-			res["signature"] = []string{hex.EncodeToString(s)}
-		}
-	}
-	js, err := json.Marshal(res)
-	if err != nil || len(val) == 0 {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+	// TODO naive authentication, redo this before production-ready
+	if req[len(req)-1] != auth_token {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+
+	decoder := json.NewDecoder(r.Body)
+	var nodes []merkle.Node
+	err := decoder.Decode(&nodes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tree := &merkle.Tree{Root: merkle.RootEntry(store)}
+	for _, n := range nodes {
+		if merkle.FindNode(store, n.Val) == nil {
+			tree.AddLeaf(&n, store)
+		}
+	}
 }
 
 func main() {
@@ -97,8 +88,7 @@ func main() {
 		log.Fatalln(err)
 	}
 	store = &merkle.Store{DB: db}
-	store.DropTables()
-	store.AddTables()
+	auth_token = os.Args[2]
 	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
 	leaves := loadLeaves()
 	addLoadedLeaves(leaves, store)
@@ -176,6 +166,6 @@ func loadLeaves() []*merkle.Node {
 		nodes = append(nodes, &merkle.Node{Val: hex.EncodeToString(h.Sum(nil))})
 		h.Reset()
 	}
-	nodes = append(nodes, &merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"})
+	//nodes = append(nodes, &merkle.Node{Val: "98cfd7226e2670eafa1f06e370d97be8047c3031e3785ac9438bfdb32e1e4041"})
 	return nodes
 }

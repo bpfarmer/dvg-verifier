@@ -32,6 +32,24 @@ func (t *Tree) CountLeaves(s *Store) int {
 	return count
 }
 
+// RootEntry comment
+func RootEntry(s *Store) *Node {
+	q := "select * from nodes limit 1"
+	rows, err := s.DB.Query(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+	n := MapToNodes(rows)
+	if len(n) > 0 {
+		p := n[0]
+		for p.PEntry(s) != nil {
+			p = p.PEntry(s)
+		}
+		return p
+	}
+	return nil
+}
+
 // CountNodesAtLevel just for debugging purposes
 /*
 func (n *Node) CountNodesAtLevel(c int, level int, s *Store) int {
