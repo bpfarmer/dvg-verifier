@@ -127,17 +127,22 @@ func (n *Node) REntry(s *Store) *Node {
 
 // PEntry comment
 func (n *Node) PEntry(s *Store) *Node {
+	log.Println("Tree.PEntry():looking for parent of val=" + n.Val)
 	if n.P != nil {
+		log.Println("Tree.PEntry():found parent in memory=" + n.P.Val)
 		return n.P
 	}
 	n.P = FindParent(s, n.Val)
 	if n.P == nil {
+		log.Println("Tree.PEntry():couldn't find parent in db, returning nil")
 		return nil
 	}
 	if n.P.LVal == n.Val {
+		log.Println("Tree.PEntry():setting node as left child of parent")
 		n.P.L = n
 		return n.P
 	}
+	log.Println("Tree.PEntry():setting node as right child of parent")
 	n.P.R = n
 	return n.P
 }

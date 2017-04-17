@@ -27,9 +27,45 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	req := strings.Split(r.URL.Path[1:], "/")
 	addr := req[1]
 	val := req[2]
+	log.Println("Transparency.verifyReq():val=" + val)
 	res := make(map[string][]string)
 	if len(addr) > 0 && len(val) > 0 {
 		n := merkle.FindNode(store, val)
+		log.Println("Transparency.verifyReq():node.Val=" + n.Val)
+		if n == nil {
+			res["error"] = []string{"Invalid"}
+		} else {
+			res["root_hash"] = []string{n.RootHash(store)}
+			res["inclusion_proof"] = n.InclusionProof(store)
+			//res["public_key"] = []string{hex.EncodeToString(pub[:])}
+			//r, err := hex.DecodeString(n.RootHash(store))
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+			//s := ed25519.Sign(priv, r)[:]
+			//fmt.Println(s)
+			//res["signature"] = []string{hex.EncodeToString(s)}
+		}
+	}
+	js, err := json.Marshal(res)
+	if err != nil || len(val) == 0 {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+// POST /add
+func addReq(w http.ResponseWriter, r *http.Request) {
+	req := strings.Split(r.URL.Path[1:], "/")
+	addr := req[1]
+	val := req[2]
+	log.Println("Transparency.addReq():val=" + val)
+	res := make(map[string][]string)
+	if len(addr) > 0 && len(val) > 0 {
+		n := merkle.FindNode(store, val)
+		log.Println("Transparency.addReq():node val=" + n.Val)
 		if n == nil {
 			res["error"] = []string{"Invalid"}
 		} else {
@@ -65,9 +101,10 @@ func main() {
 	store.AddTables()
 	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
 	leaves := loadLeaves()
-	merkle.BuildTree(leaves)
+	addLoadedLeaves(leaves, store)
 	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/verify/", verifyReq)
+	http.HandleFunc("/add/", addReq)
 	http.Handle("/", fs)
 	http.ListenAndServe(fmt.Sprintf(":%s", os.Args[1]), nil)
 }
@@ -113,6 +150,13 @@ func test(s *merkle.Store) {
 	log.Println("Appending to that tree")
 	//Remove from that Tree
 	log.Println("Removing from that tree")
+}
+
+func addLoadedLeaves(leaves []*merkle.Node, s *merkle.Store) {
+	tree := &merkle.Tree{}
+	for _, n := range leaves {
+		tree.AddLeaf(n, s)
+	}
 }
 
 func loadLeaves() []*merkle.Node {

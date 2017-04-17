@@ -3,8 +3,8 @@ package merkle
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"io"
+	"log"
 )
 
 // Node comment
@@ -53,9 +53,9 @@ func hashEmpty(subHash string) string {
 func (n *Node) InclusionProof(s *Store) []string {
 	var p []string
 	c := n
-	fmt.Println("--INCLUSION PROOF--")
-	fmt.Println(c.Val)
+	log.Println("Node.InclusionProof():val=" + c.Val)
 	for c.PEntry(s) != nil {
+		log.Println("Node.InclusionProof():traversing up the tree: val=" + c.Val)
 		if c.PEntry(s).LVal == c.HashVal() {
 			p = append(p, c.PEntry(s).RVal+"_R")
 		} else {
@@ -69,7 +69,7 @@ func (n *Node) InclusionProof(s *Store) []string {
 // RootHash comment
 func (n *Node) RootHash(s *Store) string {
 	c := n
-	for c.P != nil {
+	for c.PEntry(s) != nil {
 		c = c.PEntry(s)
 	}
 	return c.HashVal()
