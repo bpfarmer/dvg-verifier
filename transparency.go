@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strings"
 	"transparency/merkle"
@@ -17,10 +18,38 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var port string
 var store *merkle.Store
-var auth_token string
+var authToken string
 var pub *[32]byte
 var priv *[64]byte
+
+func main() {
+	log.Println("main():setting environment variables")
+	port = fmt.Sprintf(":%s", os.Args[1])
+	log.Println("main():port=" + port)
+	authToken = os.Args[2]
+	log.Println("main():authToken=" + authToken)
+
+	dbName := fmt.Sprintf("postgres://gouser:gouser@localhost/%s?sslmode=disable", "transparency")
+	log.Println("main():setting up db connection to dbName=" + dbName)
+	db, err := sql.Open("postgres", dbName) //"user=gouser password=gouser dbname=transparency sslmode=disable")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	store = &merkle.Store{DB: db}
+	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
+
+	//leaves := loadLeaves()
+	//addLoadedLeaves(leaves, store)
+
+	fs := http.FileServer(http.Dir("static"))
+	http.HandleFunc("/verify/", verifyReq)
+	http.HandleFunc("/add/", addReq)
+	http.HandleFunc("/reset/", resetReq)
+	http.Handle("/", fs)
+	http.ListenAndServe(port, nil)
+}
 
 // /verify/stanford.edu/asdfasdf9as8d7f0as98df7as
 func verifyReq(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +66,7 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 			log.Println("Transparency.verifyReq():node.Val=" + n.Val)
 			res["root_hash"] = []string{n.RootHash(store)}
 			res["inclusion_proof"] = n.InclusionProof(store)
+
 			/*
 				res["public_key"] = []string{hex.EncodeToString(pub[:])}
 				r, err := hex.DecodeString(n.RootHash(store))
@@ -60,92 +90,59 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 
 // POST /add
 func addReq(w http.ResponseWriter, r *http.Request) {
-	req := strings.Split(r.URL.Path[1:], "/")
+	log.Print("addReq():received request to add leaves=")
+	requestDump, err := httputil.DumpRequest(r, true)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(requestDump))
 
 	// TODO naive authentication, redo this before production-ready
-	if req[len(req)-1] != auth_token {
+	/*if r.Header.Get("X-Access-Token") != authToken {
+		log.Println("addReq():failed authentication check")
+		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
+		return
+	}*/
+
+	log.Println("addReq():passed authentication")
+	if r.Body == nil {
+		log.Println("addReq():no body found")
+		http.Error(w, "Please send a request body", 400)
 		return
 	}
-
-	decoder := json.NewDecoder(r.Body)
 	var nodes []merkle.Node
-	err := decoder.Decode(&nodes)
+	err = json.NewDecoder(r.Body).Decode(&nodes)
+	log.Println(err)
+	log.Println(nodes)
 	if err != nil {
 		log.Fatal(err)
 	}
 	tree := &merkle.Tree{Root: merkle.RootEntry(store)}
 	for _, n := range nodes {
+		log.Println("addReq():trying to add node with val=" + n.Val)
 		if merkle.FindNode(store, n.Val) == nil {
 			tree.AddLeaf(&n, store)
 		}
 	}
 }
 
-func main() {
-	dbName := fmt.Sprintf("postgres://gouser:gouser@localhost/%s?sslmode=disable", "transparency")
-	db, err := sql.Open("postgres", dbName) //"user=gouser password=gouser dbname=transparency sslmode=disable")
-	if err != nil {
-		log.Fatalln(err)
+// TODO may not want this in the db
+func resetReq(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("X-Access-Token") != authToken {
+		log.Println("addReq():failed authentication check")
+		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
+		return
 	}
-	store = &merkle.Store{DB: db}
-	auth_token = os.Args[2]
-	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
-	leaves := loadLeaves()
-	addLoadedLeaves(leaves, store)
-	fs := http.FileServer(http.Dir("static"))
-	http.HandleFunc("/verify/", verifyReq)
-	http.HandleFunc("/add/", addReq)
-	http.Handle("/", fs)
-	http.ListenAndServe(fmt.Sprintf(":%s", os.Args[1]), nil)
-}
-
-func test(s *merkle.Store) {
-	//Hashing some things and making them nodes
-	log.Println("Hashing some things")
-	nodes := [...]*merkle.Node{&merkle.Node{Val: "1"},
-		&merkle.Node{Val: "2"},
-		&merkle.Node{Val: "3"},
-		&merkle.Node{Val: "4"},
-		&merkle.Node{Val: "5"},
-		&merkle.Node{Val: "6"},
-		&merkle.Node{Val: "7"},
-		&merkle.Node{Val: "8"},
-		&merkle.Node{Val: "9"},
-		&merkle.Node{Val: "10"},
-		&merkle.Node{Val: "11"},
-		&merkle.Node{Val: "12"},
-		&merkle.Node{Val: "13"},
-		&merkle.Node{Val: "14"},
-		&merkle.Node{Val: "15"},
-		&merkle.Node{Val: "16"},
-		&merkle.Node{Val: "17"},
-		&merkle.Node{Val: "18"}}
-
-	//Store things in a Tree
-	log.Println("Storing some things in a tree")
-	tree := &merkle.Tree{}
-	for _, n := range nodes {
-		tree.AddLeaf(n, s)
-	}
-
-	/*
-		log.Println("Counting Nodes at Level 0 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 0, s)))
-		log.Println("Counting Nodes at Level 1 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 1, s)))
-		log.Println("Counting Nodes at Level 2 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 2, s)))
-		log.Println("Counting Nodes at Level 3 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 3, s)))
-		log.Println("Counting Nodes at Level 4 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 4, s)))
-		log.Println("Counting Nodes at Level 5 " + strconv.Itoa(tree.Root.CountNodesAtLevel(0, 5, s)))
-	*/
-	//Append to that Tree
-	log.Println("Appending to that tree")
-	//Remove from that Tree
-	log.Println("Removing from that tree")
+	store.DropTables()
+	store.AddTables()
 }
 
 func addLoadedLeaves(leaves []*merkle.Node, s *merkle.Store) {
 	tree := &merkle.Tree{}
 	for _, n := range leaves {
-		tree.AddLeaf(n, s)
+		if merkle.FindNode(store, n.Val) == nil {
+			tree.AddLeaf(n, s)
+		}
 	}
 }
 
