@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"strconv"
+	"transparency/merkle"
 )
 
 // Tree comment
@@ -202,14 +203,31 @@ func (t *Tree) AddLeaf(n *Node, s *Store) {
 		return
 	}
 
-	leafCount := t.CountLeaves(s)
-	log.Print("Tree.AddLeaf():leafCount=" + strconv.Itoa(leafCount))
-	node := t.Root.RMostEntry(s)
-	node.ShiftInsert(n, leafCount, s)
+	var o = merkle.FindNode(store, n.Val)
+	if o != nil {
+		o.Deleted = false
+		n = o
+	} else {
+		leafCount := t.CountLeaves(s)
+		log.Print("Tree.AddLeaf():leafCount=" + strconv.Itoa(leafCount))
+		node := t.Root.RMostEntry(s)
+		node.ShiftInsert(n, leafCount, s)
 
-	if t.Root.P != nil {
-		t.Root = t.Root.P
+		if t.Root.P != nil {
+			t.Root = t.Root.P
+		}
 	}
+
+	// Recursively rehash beginning with new leaf
+	walkHash(n, s)
+
+	// Recursively save nodes affected by update
+	walkSave(n, s)
+}
+
+// RemoveLeaf comment
+func (t *Tree) RemoveLeaf(n *Node, s *Store) {
+	n.Deleted = true
 
 	// Recursively rehash beginning with new leaf
 	walkHash(n, s)

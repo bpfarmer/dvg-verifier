@@ -9,11 +9,12 @@ import (
 )
 
 var schema = `
-	CREATE TABLE nodes (
+	CREATE TABLE IF NOT EXISTS nodes (
 		id serial primary key,
 		val  varchar(64),
 		l_val varchar(64),
-		r_val varchar(64)
+		r_val varchar(64),
+		deleted boolean
 	);
 `
 

@@ -1,4 +1,5 @@
 function handleFileSelect(evt) {
+  console.log("handleFileSelect():firing event");
   evt.stopPropagation();
   evt.preventDefault();
   $(".box__error:first").hide();
@@ -11,7 +12,9 @@ function handleFileSelect(evt) {
     var reader = new FileReader();
 
     reader.onload = function(e) {
+      console.log("handleFileSelect():result="+e.target.result);
       var data = new Uint8Array(e.target.result);
+      console.log("handleFileSelect():data=" + data);
       verify_file("stanford.edu", data);
     }
     reader.readAsArrayBuffer(f);
@@ -20,12 +23,14 @@ function handleFileSelect(evt) {
 }
 
 function handleDragOver(evt) {
+  console.log("handleDragOver()");
   evt.stopPropagation();
   evt.preventDefault();
   evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 }
 
 function verify_file(origin, data) {
+  console.log("verify_file()");
   var hash = sha256(data);
   xhr = new XMLHttpRequest();
   xhr.onload = function(e) {

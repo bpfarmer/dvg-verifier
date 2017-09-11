@@ -9,18 +9,20 @@ import (
 func MapToNodes(rows *sql.Rows) []*Node {
 	var ID int
 	var Val, LVal, RVal string
+	var Deleted bool
 	var nodes []*Node
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&ID, &Val, &LVal, &RVal)
+		err := rows.Scan(&ID, &Val, &LVal, &RVal, &Deleted)
 		if err != nil {
 			log.Fatal(err)
 		}
 		nodes = append(nodes, &Node{
-			ID:   ID,
-			Val:  Val,
-			LVal: LVal,
-			RVal: RVal,
+			ID:      ID,
+			Val:     Val,
+			LVal:    LVal,
+			RVal:    RVal,
+			Deleted: Deleted,
 		})
 	}
 	return nodes
@@ -31,11 +33,11 @@ func (n *Node) Save(s *Store) {
 	var q string
 	var id int
 	if n.ID == 0 {
-		q = `INSERT INTO nodes (val, l_val, r_val)
-        VALUES($1, $2, $3)
+		q = `INSERT INTO nodes (val, l_val, r_val, deleted)
+        VALUES($1, $2, $3, $4)
         RETURNING id;`
 	} else {
-		q = `UPDATE nodes SET val=$2, l_val=$3, r_val=$4 WHERE id = $1;`
+		q = `UPDATE nodes SET val=$2, l_val=$3, r_val=$4, deleted=$5 WHERE id = $1;`
 	}
 	s.Save(func(tx *sql.Tx) {
 		stmt, err := tx.Prepare(q)
@@ -44,13 +46,13 @@ func (n *Node) Save(s *Store) {
 		}
 		defer stmt.Close()
 		if n.ID == 0 {
-			err = stmt.QueryRow(n.Val, n.LVal, n.RVal).Scan(&id)
+			err = stmt.QueryRow(n.Val, n.LVal, n.RVal, n.Deleted).Scan(&id)
 			if err != nil {
 				log.Fatal(err)
 			}
 			n.ID = id
 		} else {
-			_, err := stmt.Exec(n.ID, n.Val, n.LVal, n.RVal)
+			_, err := stmt.Exec(n.ID, n.Val, n.LVal, n.RVal, n.Deleted)
 			if err != nil {
 				log.Fatal(err)
 			}

@@ -12,6 +12,7 @@ type Node struct {
 	P, L, R         *Node
 	LVal, RVal, Val string
 	Epoch           uint
+	Deleted         bool
 	// For DB purposes, probably unnecessary to include
 	ID int
 }
@@ -21,6 +22,10 @@ func (n *Node) HashVal() string {
 	h := sha256.New()
 	if n.IsLeaf() {
 		return n.Val
+	}
+	if n.Deleted {
+		h.Write([]byte("EMPTY NODE"))
+		return hex.EncodeToString(h.Sum(nil))
 	}
 	if len(n.LVal) == 0 && n.L != nil {
 		n.LVal = n.L.HashVal()

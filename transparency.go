@@ -38,14 +38,16 @@ func main() {
 		log.Fatalln(err)
 	}
 	store = &merkle.Store{DB: db}
+	store.AddTables()
 	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
 
-	//leaves := loadLeaves()
-	//addLoadedLeaves(leaves, store)
+	leaves := loadLeaves()
+	addLoadedLeaves(leaves, store)
 
 	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/verify/", verifyReq)
 	http.HandleFunc("/add/", addReq)
+	http.HandleFunc("/remove/", removeReq)
 	http.HandleFunc("/reset/", resetReq)
 	http.Handle("/", fs)
 	http.ListenAndServe(port, nil)
@@ -98,11 +100,11 @@ func addReq(w http.ResponseWriter, r *http.Request) {
 	log.Println(string(requestDump))
 
 	// TODO naive authentication, redo this before production-ready
-	/*if r.Header.Get("X-Access-Token") != authToken {
+	if r.Header.Get("X-Access-Token") != authToken {
 		log.Println("addReq():failed authentication check")
 		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
 		return
-	}*/
+	}
 
 	log.Println("addReq():passed authentication")
 	if r.Body == nil {
@@ -122,6 +124,43 @@ func addReq(w http.ResponseWriter, r *http.Request) {
 		log.Println("addReq():trying to add node with val=" + n.Val)
 		if merkle.FindNode(store, n.Val) == nil {
 			tree.AddLeaf(&n, store)
+		}
+	}
+}
+
+func removeReq(w http.ResponseWriter, r *http.Request) {
+	log.Print("addReq():received request to add leaves=")
+	requestDump, err := httputil.DumpRequest(r, true)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(requestDump))
+
+	// TODO naive authentication, redo this before production-ready
+	if r.Header.Get("X-Access-Token") != authToken {
+		log.Println("addReq():failed authentication check")
+		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("addReq():passed authentication")
+	if r.Body == nil {
+		log.Println("addReq():no body found")
+		http.Error(w, "Please send a request body", 400)
+		return
+	}
+	var nodes []merkle.Node
+	err = json.NewDecoder(r.Body).Decode(&nodes)
+	log.Println(err)
+	log.Println(nodes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tree := &merkle.Tree{Root: merkle.RootEntry(store)}
+	for _, n := range nodes {
+		log.Println("addReq():trying to add node with val=" + n.Val)
+		if merkle.FindNode(store, n.Val) != nil {
+			tree.RemoveLeaf(&n, store)
 		}
 	}
 }
