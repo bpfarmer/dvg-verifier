@@ -2,12 +2,13 @@ package merkle
 
 import (
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"io"
 	"log"
 	"math"
 	"strconv"
-	"transparency/merkle"
+	"strings"
 )
 
 // Tree comment
@@ -194,6 +195,36 @@ func FindNode(s *Store, val string) *Node {
 	return nil
 }
 
+// FindNodes comment
+func FindNodes(s *Store, val string) []*Node {
+	q := "select * from nodes where val = $1"
+	rows, err := s.DB.Query(q, val)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return MapToNodes(rows)
+}
+
+// RemoveLeaves comment
+func RemoveLeaves(nodes []Node, s *Store) {
+	var vals []string
+	for _, n := range nodes {
+		vals = append(vals, n.Val)
+	}
+	q := `UPDATE nodes SET deleted=true WHERE VAL IN ($1);`
+	s.Exec(func(tx *sql.Tx) {
+		stmt, err := tx.Prepare(q)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer stmt.Close()
+		_, err = stmt.Exec(strings.Join(vals, ","))
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+}
+
 // AddLeaf comment
 func (t *Tree) AddLeaf(n *Node, s *Store) {
 	if t.Root == nil {
@@ -203,7 +234,7 @@ func (t *Tree) AddLeaf(n *Node, s *Store) {
 		return
 	}
 
-	var o = merkle.FindNode(store, n.Val)
+	var o = FindNode(s, n.Val)
 	if o != nil {
 		o.Deleted = false
 		n = o
@@ -239,6 +270,8 @@ func (t *Tree) RemoveLeaf(n *Node, s *Store) {
 // walkSave comment
 func walkSave(n *Node, s *Store) {
 	// Save the current node
+	log.Print("walkSave(): about to save: ")
+	log.Println(n)
 	n.Save(s)
 	// Look for a parent node in memory
 	if n.P != nil {
@@ -271,10 +304,19 @@ func walkHash(n *Node, s *Store) {
 		} else {
 			n.RVal = ""
 		}
-		// Hash left and write values for parent
+		// Hash left and right values for parent
 		h := sha256.New()
-		io.WriteString(h, hashEmpty(n.LVal))
-		io.WriteString(h, hashEmpty(n.RVal))
+		if !n.LEntry(s).Deleted {
+			io.WriteString(h, hashEmpty(n.LVal))
+		} else {
+			io.WriteString(h, "DELETED NODE")
+		}
+		if !n.REntry(s).Deleted {
+			io.WriteString(h, hashEmpty(n.RVal))
+		} else {
+			io.WriteString(h, "DELETED NODE")
+		}
+
 		n.Val = hex.EncodeToString(h.Sum(nil))
 
 		// Recursively traverse the path of the current node

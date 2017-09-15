@@ -23,10 +23,6 @@ func (n *Node) HashVal() string {
 	if n.IsLeaf() {
 		return n.Val
 	}
-	if n.Deleted {
-		h.Write([]byte("EMPTY NODE"))
-		return hex.EncodeToString(h.Sum(nil))
-	}
 	if len(n.LVal) == 0 && n.L != nil {
 		n.LVal = n.L.HashVal()
 	}

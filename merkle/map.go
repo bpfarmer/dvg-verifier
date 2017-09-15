@@ -39,7 +39,7 @@ func (n *Node) Save(s *Store) {
 	} else {
 		q = `UPDATE nodes SET val=$2, l_val=$3, r_val=$4, deleted=$5 WHERE id = $1;`
 	}
-	s.Save(func(tx *sql.Tx) {
+	s.Exec(func(tx *sql.Tx) {
 		stmt, err := tx.Prepare(q)
 		if err != nil {
 			log.Fatal(err)

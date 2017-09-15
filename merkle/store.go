@@ -36,8 +36,8 @@ func (s Store) DropTables() {
 	s.DB.Exec("DROP TABLE nodes;")
 }
 
-// Save comment
-func (s Store) Save(op func(tx *sql.Tx)) {
+// Exec comment
+func (s Store) Exec(op func(tx *sql.Tx)) {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		log.Fatal(err)

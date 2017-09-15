@@ -41,14 +41,14 @@ func main() {
 	store.AddTables()
 	//pub, priv, err = ed25519.GenerateKey(rand.Reader)
 
-	leaves := loadLeaves()
-	addLoadedLeaves(leaves, store)
+	//leaves := loadLeaves()
+	//addLoadedLeaves(leaves, store)
 
 	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/verify/", verifyReq)
 	http.HandleFunc("/add/", addReq)
 	http.HandleFunc("/remove/", removeReq)
-	http.HandleFunc("/reset/", resetReq)
+	//http.HandleFunc("/reset/", resetReq)
 	http.Handle("/", fs)
 	http.ListenAndServe(port, nil)
 }
@@ -62,7 +62,7 @@ func verifyReq(w http.ResponseWriter, r *http.Request) {
 	res := make(map[string][]string)
 	if len(addr) > 0 && len(val) > 0 {
 		n := merkle.FindNode(store, val)
-		if n == nil {
+		if n == nil || n.Deleted {
 			res["error"] = []string{"Invalid"}
 		} else {
 			log.Println("Transparency.verifyReq():node.Val=" + n.Val)
@@ -122,14 +122,12 @@ func addReq(w http.ResponseWriter, r *http.Request) {
 	tree := &merkle.Tree{Root: merkle.RootEntry(store)}
 	for _, n := range nodes {
 		log.Println("addReq():trying to add node with val=" + n.Val)
-		if merkle.FindNode(store, n.Val) == nil {
-			tree.AddLeaf(&n, store)
-		}
+		tree.AddLeaf(&n, store)
 	}
 }
 
 func removeReq(w http.ResponseWriter, r *http.Request) {
-	log.Print("addReq():received request to add leaves=")
+	log.Print("removeReq():received request to remove leaves=")
 	requestDump, err := httputil.DumpRequest(r, true)
 	if err != nil {
 		log.Println(err)
@@ -138,37 +136,29 @@ func removeReq(w http.ResponseWriter, r *http.Request) {
 
 	// TODO naive authentication, redo this before production-ready
 	if r.Header.Get("X-Access-Token") != authToken {
-		log.Println("addReq():failed authentication check")
+		log.Println("removeReq():failed authentication check")
 		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
 		return
 	}
 
-	log.Println("addReq():passed authentication")
+	log.Println("removeReq():passed authentication")
 	if r.Body == nil {
-		log.Println("addReq():no body found")
+		log.Println("removeReq():no body found")
 		http.Error(w, "Please send a request body", 400)
 		return
 	}
 	var nodes []merkle.Node
 	err = json.NewDecoder(r.Body).Decode(&nodes)
-	log.Println(err)
-	log.Println(nodes)
 	if err != nil {
 		log.Fatal(err)
 	}
-	tree := &merkle.Tree{Root: merkle.RootEntry(store)}
-	for _, n := range nodes {
-		log.Println("addReq():trying to add node with val=" + n.Val)
-		if merkle.FindNode(store, n.Val) != nil {
-			tree.RemoveLeaf(&n, store)
-		}
-	}
+	merkle.RemoveLeaves(nodes, store)
 }
 
 // TODO may not want this in the db
 func resetReq(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("X-Access-Token") != authToken {
-		log.Println("addReq():failed authentication check")
+		log.Println("resetReq():failed authentication check")
 		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
 		return
 	}
