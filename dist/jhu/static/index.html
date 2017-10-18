@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="en" class="no-js" dir="ltr">
+
+<head>
+
+    <title>Johns Hopkins University Credential Verification</title>
+
+    <link rel="import" href="/partials/meta.html">
+
+    <meta charset="utf-8">
+    <meta name="author" content="georgef@stanford.edu">
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="robots" CONTENT="index, nofollow">
+
+
+
+
+
+
+
+    <!--STANFORD ONLY-->
+    <!--<link rel="apple-touch-icon" sizes="57x57"-->
+          <!--href="/img/stanford/favicons/apple-touch-icon-57x57.png"/>-->
+
+    <!--<link rel="apple-touch-icon" sizes="76x76"-->
+          <!--href="//www-media.stanford.edu/assets/favicon/apple-touch-icon-76x76.png"/>-->
+    <!--<link rel="apple-touch-icon" sizes="114x114"-->
+          <!--href="//www-media.stanford.edu/assets/favicon/apple-touch-icon-114x114.png"/>-->
+    <!--<link rel="apple-touch-icon" sizes="120x120"-->
+          <!--href="//www-media.stanford.edu/assets/favicon/apple-touch-icon-120x120.png"/>-->
+    <!--<link rel="apple-touch-icon" sizes="144x144"-->
+          <!--href="//www-media.stanford.edu/assets/favicon/apple-touch-icon-144x144.png"/>-->
+    <!--<link rel="apple-touch-icon" sizes="152x152"-->
+          <!--href="//www-media.stanford.edu/assets/favicon/apple-touch-icon-152x152.png"/>-->
+    <!--<link rel="apple-touch-icon" sizes="180x180"-->
+          <!--href="//www-media.stanford.edu/assets/favicon/apple-touch-icon-180x180.png"/>-->
+    <!--<link rel="icon" type="image/png" href="//www-media.stanford.edu/assets/favicon/favicon-196x196.png"-->
+          <!--sizes="196x196"/>-->
+    <!--<link rel="icon" type="image/png" href="//www-media.stanford.edu/assets/favicon/favicon-192x192.png"-->
+          <!--sizes="192x192"/>-->
+    <!--<link rel="icon" type="image/png" href="//www-media.stanford.edu/assets/favicon/favicon-128.png" sizes="128x128"/>-->
+    <!--<link rel="icon" type="image/png" href="//www-media.stanford.edu/assets/favicon/favicon-96x96.png" sizes="96x96"/>-->
+    <!--<link rel="icon" type="image/png" href="//www-media.stanford.edu/assets/favicon/favicon-32x32.png" sizes="32x32"/>-->
+    <!--<link rel="icon" type="image/png" href="//www-media.stanford.edu/assets/favicon/favicon-16x16.png" sizes="16x16"/>-->
+    <!--<link rel="mask-icon" href="//www-media.stanford.edu/assets/favicon/safari-pinned-tab.svg" color="#f4f4f4">-->
+    <!--<meta name="application-name" content=" Credential Verification Portal"/>-->
+    <!--<meta name="msapplication-TileColor" content="#F4F4F4"/>-->
+    <!--<meta name="msapplication-TileImage" content="//www-media.stanford.edu/assets/favicon/mstile-144x144.png"/>-->
+
+
+
+
+
+    <!-- JOHNS HOPKINS ONLY --->
+    <link rel="apple-touch-icon" sizes="57x57" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/favicon-194x194.png" sizes="194x194">
+    <link rel="icon" type="image/png" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/manifest.json">
+    <link rel="mask-icon" href="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/safari-pinned-tab.svg" color="#002d72">
+    <meta name="apple-mobile-web-app-title" content="Johns Hopkins University Brand Guidelines">
+    <meta name="application-name" content="Johns Hopkins University Brand Guidelines">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-TileImage" content="http://brand.jhu.edu/content/themes/jhu_id/images/favicons/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+
+
+
+
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro|Source+Serif+Pro|Material+Icons" rel="stylesheet">
+
+
+    <link rel="canonical" href="https://css-tricks.com/examples/DragAndDropFileUploading/">
+    <link href="css/stanford-footer.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+
+    <script src="js/sha256.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/file_upload.js"></script>
+    <script src="js/pdf.js"></script>
+
+    <link rel="stylesheet" href="css/core.css">
+
+
+</head>
+
+    <body>
+        <div id="su-wrap"> <!-- #su-wrap start -->
+            <div id="su-content"> <!-- #su-content start -->
+                <nav class="navbar ">
+                    <div class="container">
+
+                        <a href="//registrar.stanford.edu/" class="logo" id="logo-anchor">
+
+                        </a>
+
+                    </div>
+                </nav>
+
+
+                <div class="container">
+
+                    <h2>Credential Verification</h2>
+                    <p class="tagline">Drag and drop a file to verify</p>
+
+                    <div class="row info_row">
+                        <div class="col upload_cred">
+                            <i class="material-icons">cloud_upload</i>
+                            <span>Upload a Credential</span>
+                        </div>
+                        <div class="col-sep">
+                            <div>
+                                <img src="img/ic_keyboard_arrow_right_black_24px.svg">
+                            </div>
+                        </div>
+                        <div class="col check_crypto">
+                            <i class="material-icons">sync</i>
+                            <span>Checking Cryptographic Proof</span>
+                        </div>
+                        <div class="col-sep">
+                            <div>
+                                <img src="img/ic_keyboard_arrow_right_black_24px.svg">
+                            </div>
+                        </div>
+                        <div class="col verify_cred">
+                            <i class="material-icons">verified_user</i>
+                            <span>Verified Results</span>
+                        </div>
+                    </div>
+
+
+                        <form novalidate class="box" id="drop_zone">
+                            <div class="box__input">
+                                <label>
+
+                                    <svg class="box__icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43"  viewBox="0 0 50 43">
+                                        <path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"/>
+                                    </svg>
+
+                                    <input type="file" name="files[]" id="file" class="box__file"
+                                           data-multiple-caption="{count} files selected" multiple/>
+
+                                    <strong>Click here</strong><span class="box__dragndrop"> or drag a file to verify</span>
+
+                                </label>
+
+                                <button type="submit" class="btn  box__button is-dragover">Upload</button>
+                            </div>
+                            <div class="box__success">
+                                <h3 id="v-status" class="text-success">Valid Credential</h3>
+                                <h4 id="multiple-origins" class="text-success"></h4>
+                            </div>
+                            <div class="box__error">
+                                <h3 id="v-status" class="text-danger">Invalid Credential</h3>
+                            </div>
+                        </form>
+
+
+                </div>
+
+                <div id="global-footer">
+                    <div class="container">
+                        <div class="row">
+                            <div id="bottom-logo" class="span2">
+                                <a href="http://www.stanford.edu">
+                                    <img src="https://www.stanford.edu/su-identity/images/footer-stanford-logo@2x.png" alt="Stanford University" width="105" height="49"/>
+                                </a>
+                            </div>
+                            <!-- #bottom-logo end -->
+                            <div id="bottom-text" class="span10">
+                                <ul>
+                                    <li class="home"><a href="http://www.stanford.edu">SU Home</a></li>
+                                    <li class="maps alt"><a href="http://visit.stanford.edu/plan/maps.html">Maps &amp; Directions</a></li>
+                                    <li class="search-stanford"><a href="http://www.stanford.edu/search/">Search Stanford</a></li>
+                                    <li class="terms alt"><a href="http://www.stanford.edu/site/terms.html">Terms of Use</a></li>
+                                    <li class="emergency-info"><a href="http://emergency.stanford.edu">Emergency Info</a></li>
+                                </ul>
+                            </div> <!-- .bottom-text end -->
+                            <div class="clear"></div>
+                            <p class="copyright vcard">&copy; <span class="fn org">Stanford University</span>, <span class="adr"> <span class="locality">Stanford</span>, <span class="region">California</span> <span class="postal-code">94305</span></span>.&nbsp;&nbsp;
+                                <span id="copyright-complaint"><a href="https://uit.stanford.edu/security/copyright-infringement" class="copyright-complaint" >Copyright Complaints</a></span>
+                            </p>
+                        </div> <!-- .row end -->
+                    </div> <!-- .container end -->
+                </div> <!-- global-footer end -->
+                <!-- Global footer snippet end -->
+
+
+                <script>
+
+                    // Setup the dnd listeners.
+                    var dropZone = document.getElementById('drop_zone');
+                    dropZone.addEventListener('dragover', handleDragOver, false);
+                    dropZone.addEventListener('drop', handleFileSelect, false);
+
+
+                    'use strict';
+
+                    ( function (document, window, index) {
+                        // feature detection for drag&drop upload
+                        var isAdvancedUpload = function () {
+                            var div = document.createElement('div');
+                            return ( ( 'draggable' in div ) || ( 'ondragstart' in div && 'ondrop' in div ) ) && 'FormData' in window && 'FileReader' in window;
+                        }();
+
+
+                        // applying the effect for every form
+                        var forms = document.querySelectorAll('.box');
+                        Array.prototype.forEach.call(forms, function (form) {
+                            var input = form.querySelector('input[type="file"]'),
+                                label = form.querySelector('label'),
+                                errorMsg = form.querySelector('.box__error span'),
+                                restart = form.querySelectorAll('.box__restart'),
+                                droppedFiles = false,
+                                showFiles = function (files) {
+                                    label.textContent = files.length > 1 ? ( input.getAttribute('data-multiple-caption') || '' ).replace('{count}', files.length) : files[0].name;
+                                },
+                                triggerFormSubmit = function () {
+                                };
+
+                            // automatically submit the form on file select
+                            input.addEventListener('change', function (e) {
+                                droppedFiles = e.target.files; // the files that were dropped
+                                for (var i = 0, f; f = droppedFiles[i]; i++) {
+                                    var reader = new FileReader();
+
+                                    reader.onload = function (e) {
+                                        $('.upload_cred').fadeTo(400, 0.2);
+                                        $('.verify_cred').fadeTo(400, 0.2);
+                                        $('.check_crypto').fadeTo(400, 1);
+                                      
+                                        var data = new Uint8Array(e.target.result);
+                                        verify_file("stanford.edu", data);
+                                    }
+                                    reader.readAsArrayBuffer(f);
+                                }
+                                showFiles(droppedFiles);
+                            });
+
+                            // drag&drop files if the feature is available
+                            if (isAdvancedUpload) {
+                                form.classList.add('has-advanced-upload'); // letting the CSS part to know drag&drop is supported by the browser
+
+                                ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach(function (event) {
+                                    form.addEventListener(event, function (e) {
+                                        // preventing the unwanted behaviours
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    });
+                                });
+                                ['dragover', 'dragenter'].forEach(function (event) {
+                                    form.addEventListener(event, function () {
+                                        form.classList.add('is-dragover');
+                                    });
+                                });
+                                ['dragleave', 'dragend', 'drop'].forEach(function (event) {
+                                    form.addEventListener(event, function () {
+                                        form.classList.remove('is-dragover');
+                                    });
+
+                                });
+                                form.addEventListener('drop', function (e) {
+                                    droppedFiles = e.dataTransfer.files; // the files that were dropped
+                                    for (var i = 0, f; f = droppedFiles[i]; i++) {
+                                        var reader = new FileReader();
+
+                                        reader.onload = function (e) {
+                                            $('.upload_cred').fadeTo(400, 0.2);
+                                            $('.verify_cred').fadeTo(400, 0.2);
+                                            $('.check_crypto').fadeTo(400, 1);
+                                          
+                                            var data = new Uint8Array(e.target.result);
+                                            verify_file("stanford.edu", data);
+                                        }
+                                        reader.readAsArrayBuffer(f);
+
+                                    }
+                                    showFiles(droppedFiles);
+
+                                });
+                            }
+
+
+
+                            form.addEventListener('submit', function (e) {
+                                // preventing the duplicate submissions if the current one is in progress
+                                //if( form.classList.contains( 'is-uploading' ) ) return false;
+
+                                //form.classList.add( 'is-uploading' );
+                                form.classList.remove('is-error');
+
+                                if (isAdvancedUpload) {
+                                    e.preventDefault();
+                                }
+                            });
+
+
+
+                            Array.prototype.forEach.call(restart, function (entry) {
+                                entry.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    form.classList.remove('is-error', 'is-success');
+                                    input.click();
+                                });
+                            });
+
+
+                            input.addEventListener('focus', function () {
+                                input.classList.add('has-focus');
+                            });
+                            input.addEventListener('blur', function () {
+                                input.classList.remove('has-focus');
+                            });
+
+                        });
+                    }(document, window, 0));
+        //
+                    $(".box__button").hide();
+
+                </script>
+
+
+                <script async src="https://www.googletagmanager.com/gtag/js?id=UA-85512308-6"></script>
+                <script src="js/google_analytics.js"></script>
+            </div>
+        </div>
+    </body>
+
+</html>

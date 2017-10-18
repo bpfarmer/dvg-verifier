@@ -34,64 +34,29 @@ func (t *Tree) CountLeaves(s *Store) int {
 	return count
 }
 
-// RootEntry comment
-func RootEntry(s *Store) *Node {
-	q := "select * from nodes limit 1"
-	rows, err := s.DB.Query(q)
-	if err != nil {
-		log.Fatal(err)
-	}
-	n := MapToNodes(rows)
-	if len(n) > 0 {
-		p := n[0]
-		for p.PEntry(s) != nil {
-			p = p.PEntry(s)
-		}
-		return p
-	}
-	return nil
-}
-
-// CountNodesAtLevel just for debugging purposes
-/*
-func (n *Node) CountNodesAtLevel(c int, level int, s *Store) int {
-	count := 0
-	if c < level {
-		l := n.LEntry(s)
-		r := n.REntry(s)
-
-		if l != nil {
-			count += l.CountNodesAtLevel(c+1, level, s)
-		}
-
-		if r != nil {
-			count += r.CountNodesAtLevel(c+1, level, s)
-		}
-	} else {
-		return 1
-	}
-	return count
-}*/
-
 // ShiftInsert comment
 func (n *Node) ShiftInsert(node *Node, leafCount int, s *Store) {
 	l := 0
-	o := n
 	if leafCount%2 == 0 {
 		d := targetShiftDepth(leafCount)
-		for l < d && o.PEntry(s) != nil {
-			o = o.PEntry(s)
+		for l < d && n.PEntry(s) != nil {
+			n = n.PEntry(s)
 			l++
 		}
 	}
-	p := &Node{L: o, R: node, P: o.P}
-	o.P = p
+
+	p := &Node{L: n, R: node, P: n.P}
+	n.P = p
 	node.P = p
+
+	log.Println("ShiftInsert - Inserting a new node with children:")
+	log.Println("Left Node: " + n.Val)
+	log.Println("Right Node: " + node.Val)
 
 	if p.P == nil {
 		return
 	}
-	if p.P.L == o {
+	if p.P.L == n {
 		p.P.L = p
 	} else {
 		p.P.R = p
@@ -107,110 +72,18 @@ func targetShiftDepth(leafCount int) int {
 		}
 		n--
 	}
+	log.Println("targetShiftDepth - " + strconv.Itoa(n))
 	return n
-}
-
-// RMostEntry returns the right-most descendant
-func (n *Node) RMostEntry(s *Store) *Node {
-	node := n
-	for node.REntry(s) != nil {
-		node = node.REntry(s)
-	}
-	return node
-}
-
-// LEntry comment
-func (n *Node) LEntry(s *Store) *Node {
-	if n.L != nil {
-		return n.L
-	}
-	n.L = FindNode(s, n.LVal)
-	if n.L == nil {
-		return nil
-	}
-	n.L.P = n
-	return n.L
-}
-
-// REntry comment
-func (n *Node) REntry(s *Store) *Node {
-	if n.R != nil {
-		return n.R
-	}
-	n.R = FindNode(s, n.RVal)
-	if n.R == nil {
-		return nil
-	}
-	n.R.P = n
-	return n.R
-}
-
-// PEntry comment
-func (n *Node) PEntry(s *Store) *Node {
-	log.Println("Tree.PEntry():looking for parent of val=" + n.Val)
-	if n.P != nil {
-		log.Println("Tree.PEntry():found parent in memory=" + n.P.Val)
-		return n.P
-	}
-	n.P = FindParent(s, n.Val)
-	if n.P == nil {
-		log.Println("Tree.PEntry():couldn't find parent in db, returning nil")
-		return nil
-	}
-	if n.P.LVal == n.Val {
-		log.Println("Tree.PEntry():setting node as left child of parent")
-		n.P.L = n
-		return n.P
-	}
-	log.Println("Tree.PEntry():setting node as right child of parent")
-	n.P.R = n
-	return n.P
-}
-
-// FindParent comment
-func FindParent(s *Store, val string) *Node {
-	q := "select * from nodes where l_val = $1 or r_val = $1"
-	rows, err := s.DB.Query(q, val)
-	if err != nil {
-		log.Fatal(err)
-	}
-	n := MapToNodes(rows)
-	if len(n) > 0 {
-		return n[0]
-	}
-	return nil
-}
-
-// FindNode comment
-func FindNode(s *Store, val string) *Node {
-	q := "select * from nodes where val = $1"
-	rows, err := s.DB.Query(q, val)
-	if err != nil {
-		log.Fatal(err)
-	}
-	n := MapToNodes(rows)
-	if len(n) > 0 {
-		return n[0]
-	}
-	return nil
-}
-
-// FindNodes comment
-func FindNodes(s *Store, val string) []*Node {
-	q := "select * from nodes where val = $1"
-	rows, err := s.DB.Query(q, val)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return MapToNodes(rows)
 }
 
 // RemoveLeaves comment
 func RemoveLeaves(nodes []Node, s *Store) {
+	log.Println("RemoveLeaves: Removing nodes")
 	var vals []string
-	for _, n := range nodes {
-		vals = append(vals, n.Val)
+	for i := range nodes {
+		vals = append(vals, nodes[i].Val)
 	}
+	log.Println("RemoveLeaves: vals = " + strings.Join(vals, ","))
 	q := `UPDATE nodes SET deleted=true WHERE VAL IN ($1);`
 	s.Exec(func(tx *sql.Tx) {
 		stmt, err := tx.Prepare(q)
@@ -227,26 +100,24 @@ func RemoveLeaves(nodes []Node, s *Store) {
 
 // AddLeaf comment
 func (t *Tree) AddLeaf(n *Node, s *Store) {
+	// Handle the case of a fresh tree
 	if t.Root == nil {
-		log.Println("Tree.AddLeaf():handle the case of a fresh tree")
 		t.Root = n
 		n.Save(s)
 		return
 	}
 
+	log.Println("AddLeaf: Dealing with existing tree with root: " + t.Root.Val)
 	var o = FindNode(s, n.Val)
 	if o != nil {
 		o.Deleted = false
 		n = o
 	} else {
 		leafCount := t.CountLeaves(s)
-		log.Print("Tree.AddLeaf():leafCount=" + strconv.Itoa(leafCount))
 		node := t.Root.RMostEntry(s)
+		log.Println("AddLeaf: Below node: " + t.Root.Val)
+		log.Println("AddLeaf: Rightmost Entry: " + node.Val)
 		node.ShiftInsert(n, leafCount, s)
-
-		if t.Root.P != nil {
-			t.Root = t.Root.P
-		}
 	}
 
 	// Recursively rehash beginning with new leaf
@@ -254,34 +125,26 @@ func (t *Tree) AddLeaf(n *Node, s *Store) {
 
 	// Recursively save nodes affected by update
 	walkSave(n, s)
-}
 
-// RemoveLeaf comment
-func (t *Tree) RemoveLeaf(n *Node, s *Store) {
-	n.Deleted = true
-
-	// Recursively rehash beginning with new leaf
-	walkHash(n, s)
-
-	// Recursively save nodes affected by update
-	walkSave(n, s)
+	if t.Root.PEntry(s) != nil {
+		t.Root = t.Root.PEntry(s)
+		log.Println("Shifting Root to " + t.Root.Val)
+	}
 }
 
 // walkSave comment
 func walkSave(n *Node, s *Store) {
 	// Save the current node
-	log.Print("walkSave(): about to save: ")
-	log.Println(n)
 	n.Save(s)
 	// Look for a parent node in memory
-	if n.P != nil {
+	if n.PEntry(s) != nil {
 		// Look for a sibling node in memory and save
-		if n.P.L == n {
-			if n.P.R != nil {
+		if n.P.LEntry(s) == n {
+			if n.P.REntry(s) != nil {
 				n.P.R.Save(s)
 			}
-		} else if n.P.L != nil {
-			n.P.L.Save(s)
+		} else if n.P.LEntry(s) != nil {
+			n.P.LEntry(s).Save(s)
 		}
 		// Traverse the path to save nodes in memory
 		walkSave(n.P, s)
@@ -306,20 +169,29 @@ func walkHash(n *Node, s *Store) {
 		}
 		// Hash left and right values for parent
 		h := sha256.New()
-		if !n.LEntry(s).Deleted {
-			io.WriteString(h, hashEmpty(n.LVal))
-		} else {
-			io.WriteString(h, "DELETED NODE")
-		}
-		if !n.REntry(s).Deleted {
-			io.WriteString(h, hashEmpty(n.RVal))
-		} else {
-			io.WriteString(h, "DELETED NODE")
-		}
-
+		io.WriteString(h, hashEmpty(n.LVal))
+		io.WriteString(h, hashEmpty(n.RVal))
 		n.Val = hex.EncodeToString(h.Sum(nil))
 
 		// Recursively traverse the path of the current node
 		walkHash(n, s)
 	}
+}
+
+// RootEntry comment
+func RootEntry(s *Store) *Node {
+	q := "select * from nodes limit 1"
+	rows, err := s.DB.Query(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+	n := MapToNodes(rows)
+	if len(n) > 0 {
+		p := n[0]
+		for p.PEntry(s) != nil {
+			p = p.PEntry(s)
+		}
+		return p
+	}
+	return nil
 }
